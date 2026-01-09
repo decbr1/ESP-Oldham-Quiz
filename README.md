@@ -36,6 +36,11 @@ python3 main.py
 
 You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will require pressing Enter after each key in multiplayer mode.
 
+**On Startup**: The program displays a GPL copyright notice. You can:
+- Press **Enter** to continue to the game
+- Type **`show w`** to see warranty details
+- Type **`show c`** to see redistribution conditions
+
 ### Game Modes
 
 #### Single Player
@@ -138,6 +143,12 @@ main()
 
 ```
 === OLDHAM QUIZ ===
+Copyright (C) 2026  Declan Brown
+This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+This is free software, and you are welcome to redistribute it
+under certain conditions; type 'show c' for details.
+
+Press Enter to continue, or type 'show w' or 'show c': 
 
 How many players? (1-3): 2
 
