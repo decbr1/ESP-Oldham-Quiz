@@ -1,10 +1,10 @@
 import json
 import sys
+import os
 
 # Platform-specific key press detection
 if sys.platform.startswith('win'):
     import msvcrt
-    
     def wait_for_buzz():
         """wait for Q, P, or B key press on windows."""
         while True:
@@ -15,11 +15,23 @@ if sys.platform.startswith('win'):
 else:
     import tty
     import termios
-    
+
+
     def wait_for_buzz():
         """wait for Q, P, or B key press on *nix."""
-        
+        global nonTTY
         fd = sys.stdin.fileno()
+
+        # check if ran in a real terminal (not IDE console -> pycharm bug)
+        if not os.isatty(fd):
+            # fallback for IDE/non-TTY environments
+            nonTTY = True
+            while True:
+                key = input("").upper().strip()
+                if key in ('Q', 'P', 'B'):
+                    return key
+                print("Invalid key! Please enter Q, P, or B.")
+
         old_settings = termios.tcgetattr(fd)
         try:
             tty.setraw(fd)
@@ -71,7 +83,13 @@ def setup_players():
         for key, player in players.items():
             print(f"  {key} - {player['name']}")
         print("=" * 50 + "\n")
-    
+
+        if nonTTY:
+            print("It looks like your running in an iPython console.")
+            print("No worries! On buzz in, you will have to press enter after your key.")
+            print("To have the buzzer more realistic, run the game with `python3 main.py` or similar in a local terminal.")
+            print("Press enter to confirm you have read the above...")
+            input()
     return players
 
 
@@ -195,5 +213,7 @@ def main():
 if __name__ == "__main__":
     with open('questions.json', 'r', encoding='utf-8') as f:
         QUESTIONS = json.load(f)
-    
+
+    nonTTY = not os.isatty(sys.stdin.fileno())
+
     main()
