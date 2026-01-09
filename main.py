@@ -1,57 +1,379 @@
+"""
+Oldham Quiz - A multi-player quiz game with buzzer support.
+
+This module implements a quiz game that supports both single-player and
+multi-player modes with buzzer functionality for competitive play.
+"""
+
 import json
 import sys
 import os
+from abc import ABC, abstractmethod
+from typing import List, Dict, Optional
 
 # Platform-specific key press detection
 if sys.platform.startswith('win'):
     import msvcrt
-    def wait_for_buzz():
-        """wait for Q, P, or B key press on windows."""
-        while True:
-            if msvcrt.kbhit():
-                key = msvcrt.getch().decode('utf-8').upper()
-                if key in ('Q', 'P', 'B'):
-                    return key
 else:
     import tty
     import termios
 
 
-    def wait_for_buzz():
-        """wait for Q, P, or B key press on *nix."""
-        global nonTTY
-        fd = sys.stdin.fileno()
+class Player:
+    """Represents a quiz player with name and score."""
 
-        # check if ran in a real terminal (not IDE console -> pycharm bug)
-        if not os.isatty(fd):
-            # fallback for IDE/non-TTY environments
-            nonTTY = True
-            while True:
-                key = input("").upper().strip()
-                if key in ('Q', 'P', 'B'):
+    def __init__(self, name: str, key: str = None):
+        """
+        Initialize a player.
+
+        Args:
+            name: Player's display name
+            key: Buzzer key assigned to player (for multiplayer mode)
+        """
+        self.name = name
+        self.key = key
+        self.score = 0
+
+    def add_point(self):
+        """Add one point to the player's score."""
+        self.score += 1
+
+    def __repr__(self):
+        return f"Player(name={self.name}, score={self.score}, key={self.key})"
+
+
+class Question:
+    """Represents a quiz question with multiple choice options."""
+
+    def __init__(self, data: dict):
+        """
+        Initialize a question from JSON data.
+
+        Args:
+            data: Dictionary containing question data
+        """
+        self.index = data['question_index']
+        self.text = data['question']
+        self.options = data['options']
+        self.answer = data['answer']
+
+    def display(self):
+        """Display the question and its options."""
+        print(f"\nQuestion {self.index}: {self.text}")
+        for option in self.options:
+            print(f"  {option}")
+
+
+class BuzzerInput:
+    """Handles buzzer input detection across different platforms."""
+
+    VALID_KEYS = ('Q', 'P', 'B')
+
+    def __init__(self):
+        """Initialize buzzer input handler."""
+        self.is_tty = os.isatty(sys.stdin.fileno())
+
+    def wait_for_buzz(self) -> str:
+        """
+        Wait for a valid buzzer key press.
+
+        Returns:
+            The pressed key (Q, P, or B)
+        """
+        if sys.platform.startswith('win'):
+            return self._wait_for_buzz_windows()
+        else:
+            return self._wait_for_buzz_unix()
+
+    def _wait_for_buzz_windows(self) -> str:
+        """Wait for buzzer key on Windows."""
+        while True:
+            if msvcrt.kbhit():
+                key = msvcrt.getch().decode('utf-8').upper()
+                if key in self.VALID_KEYS:
                     return key
-                print("Invalid key! Please enter Q, P, or B.")
 
+    def _wait_for_buzz_unix(self) -> str:
+        """Wait for buzzer key on Unix-like systems."""
+        if not self.is_tty:
+            # Fallback for IDE/non-TTY environments
+            return self._wait_for_buzz_fallback()
+
+        fd = sys.stdin.fileno()
         old_settings = termios.tcgetattr(fd)
         try:
             tty.setraw(fd)
             while True:
                 key = sys.stdin.read(1).upper()
-                if key in ('Q', 'P', 'B'):
+                if key in self.VALID_KEYS:
                     return key
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
+    def _wait_for_buzz_fallback(self) -> str:
+        """Fallback input method for non-TTY environments."""
+        while True:
+            key = input("").upper().strip()
+            if key in self.VALID_KEYS:
+                return key
+            print(f"Invalid key! Please enter {', '.join(self.VALID_KEYS)}.")
 
-def setup_players():
-    """get player names. returns dictionary of players."""
-    
-    players = {}
-    key_map = {'Q': None, 'P': None, 'B': None}
-    
-    print("=== oldham quiz ===\n")
+    @staticmethod
+    def get_valid_answer() -> str:
+        """
+        Get a valid answer (A, B, or C) from the user.
+
+        Returns:
+            The user's answer choice
+        """
+        while True:
+            user_answer = input("Answer >> ").upper().strip()
+            if user_answer in ('A', 'B', 'C'):
+                return user_answer
+            else:
+                print("Invalid input! Please enter A, B, or C.")
+
+
+class QuizGame(ABC):
+    """Abstract base class for quiz game modes."""
+
+    def __init__(self, questions: List[Question], num_players: int):
+        """
+        Initialize the quiz game.
+
+        Args:
+            questions: List of Question objects
+            num_players: Number of players in the game
+        """
+        self.questions = questions
+        self.num_players = num_players
+        self.players: Dict[str, Player] = {}
+
+    @abstractmethod
+    def setup_players(self):
+        """Set up players for the game mode."""
+        pass
+
+    @abstractmethod
+    def play_question(self, question: Question, question_num: int) -> bool:
+        """
+        Play a single question.
+
+        Args:
+            question: The question to play
+            question_num: Current question number (0-indexed)
+
+        Returns:
+            True if question was answered, False otherwise
+        """
+        pass
+
+    def display_final_results(self):
+        """Display final game results."""
+        print("\n" + "=" * 50)
+        print("FINAL RESULTS")
+        print("=" * 50)
+
+        sorted_players = sorted(
+            self.players.values(),
+            key=lambda p: p.score,
+            reverse=True
+        )
+
+        for rank, player in enumerate(sorted_players, 1):
+            percentage = (player.score / len(self.questions)) * 100
+            print(f"{rank}. {player.name}: {player.score}/"
+                  f"{len(self.questions)} ({percentage:.1f}%)")
+
+        self._display_winner(sorted_players)
+        print("=" * 50)
+
+    @abstractmethod
+    def _display_winner(self, sorted_players: List[Player]):
+        """Display the winner(s)."""
+        pass
+
+    def run(self):
+        """Run the complete quiz game."""
+        self.setup_players()
+
+        for i, question in enumerate(self.questions):
+            question.display()
+            self.play_question(question, i)
+
+        self.display_final_results()
+
+
+class SinglePlayerGame(QuizGame):
+    """Single player quiz game mode."""
+
+    def setup_players(self):
+        """Set up the single player."""
+        name = input("Player name: ").strip()
+        if not name:
+            name = "Player 1"
+        self.players['Q'] = Player(name, 'Q')
+
+    def play_question(self, question: Question, question_num: int) -> bool:
+        """Play a question in single player mode."""
+        player = self.players['Q']
+        user_answer = BuzzerInput.get_valid_answer()
+
+        if user_answer == question.answer:
+            player.add_point()
+            print(f"Correct! +1 point. Score: {player.score}/{question_num + 1}")
+        else:
+            print(f"Incorrect. The correct answer was {question.answer}. "
+                  f"Score: {player.score}/{question_num + 1}")
+
+        return True
+
+    def _display_winner(self, sorted_players: List[Player]):
+        """Display single player results."""
+        pass  # No winner announcement in single player
+
+
+class MultiPlayerGame(QuizGame):
+    """Multi-player quiz game mode with buzzer support."""
+
+    MAX_ATTEMPTS = 2
+    BUZZER_KEYS = ('Q', 'P', 'B')
+
+    def __init__(self, questions: List[Question], num_players: int):
+        """Initialize multiplayer game."""
+        super().__init__(questions, num_players)
+        self.buzzer = BuzzerInput()
+
+    def setup_players(self):
+        """Set up multiple players."""
+        for i in range(self.num_players):
+            key = self.BUZZER_KEYS[i]
+            name = input(f"Player {i + 1} (Key: {key}): ").strip()
+            if not name:
+                name = f"Player {i + 1}"
+            self.players[key] = Player(name, key)
+
+        self._display_buzzer_info()
+
+    def _display_buzzer_info(self):
+        """Display buzzer key assignments and setup info."""
+        print("\n" + "=" * 50)
+        print("BUZZER KEYS:")
+        for player in self.players.values():
+            print(f"  {player.key} - {player.name}")
+        print("=" * 50 + "\n")
+
+        if not self.buzzer.is_tty:
+            print("It looks like you're running in an IDE console.")
+            print("No worries! On buzz in, you will have to press "
+                  "enter after your key.")
+            print("To have the buzzer more realistic, run the game with "
+                  "`python3 main.py` in a terminal.")
+            input("Press enter to confirm you have read the above...")
+
+    def play_question(self, question: Question, question_num: int) -> bool:
+        """Play a question in multiplayer mode."""
+        attempts = 0
+        first_buzzer = None
+
+        while attempts < self.MAX_ATTEMPTS:
+            print("\nBUZZ IN WITH YOUR KEY")
+            buzzer_key = self.buzzer.wait_for_buzz()
+
+            if not self._is_valid_buzz(buzzer_key, first_buzzer, attempts):
+                continue
+
+            player = self.players[buzzer_key]
+            print(f"{player.name} buzzed in.")
+
+            if attempts == 0:
+                first_buzzer = buzzer_key
+
+            user_answer = BuzzerInput.get_valid_answer()
+            attempts += 1
+
+            if user_answer == question.answer:
+                player.add_point()
+                if attempts == 1:
+                    print(f"Correct. +1 point to {player.name}")
+                else:
+                    print(f"Correct! Steal successful. +1 point to {player.name}")
+                break
+            else:
+                if attempts == 1:
+                    print("Incorrect. Steal opportunity available.")
+                else:
+                    print(f"Incorrect. The correct answer was {question.answer}")
+                    print("Question skipped.")
+                    break
+
+        self._display_current_scores()
+
+        if question_num < len(self.questions) - 1:
+            input("\nPress Enter for next question...")
+
+        return True
+
+    def _is_valid_buzz(self, buzzer_key: str, first_buzzer: Optional[str],
+                       attempts: int) -> bool:
+        """
+        Check if a buzz is valid.
+
+        Args:
+            buzzer_key: The key that was pressed
+            first_buzzer: The first player to buzz (if any)
+            attempts: Number of attempts so far
+
+        Returns:
+            True if the buzz is valid, False otherwise
+        """
+        if buzzer_key not in self.players:
+            print(f"\nKey {buzzer_key} is not assigned to a player.")
+            return False
+
+        if attempts == 1 and buzzer_key == first_buzzer:
+            print(f"{self.players[buzzer_key].name} already attempted "
+                  f"this question.")
+            return False
+
+        return True
+
+    def _display_current_scores(self):
+        """Display current scores for all players."""
+        print("\n" + "-" * 50)
+        print("CURRENT SCORES:")
+        for player in sorted(self.players.values(), key=lambda p: p.key):
+            print(f"  {player.name}: {player.score}")
+        print("-" * 50)
+
+    def _display_winner(self, sorted_players: List[Player]):
+        """Display the game winner."""
+        if sorted_players:
+            winner = sorted_players[0]
+            print(f"\nWinner: {winner.name} with {winner.score} points!")
+
+
+def load_questions(filepath: str) -> List[Question]:
+    """
+    Load questions from a JSON file.
+
+    Args:
+        filepath: Path to the questions JSON file
+
+    Returns:
+        List of Question objects
+    """
+    with open(filepath, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return [Question(q) for q in data]
+
+
+def main():
+    """Main entry point for the quiz game."""
+    questions = load_questions('questions.json')
+
+    print("=== OLDHAM QUIZ ===\n")
     num_players = 0
-
     while num_players < 1 or num_players > 3:
         try:
             num_players = int(input("How many players? (1-3): "))
@@ -59,161 +381,17 @@ def setup_players():
                 print("Please enter a number between 1 and 3.")
         except ValueError:
             print("Please enter a valid number.")
-    
-    keys = ('Q', 'P', 'B')
-    
-    for i in range(num_players):
-        if num_players == 1:
-            name = input("Player name: ").strip()
-        else:
-            name = input(f"Player {i+1} (Key: {keys[i]}): ").strip()
-        
-        if not name:
-            name = f"Player {i+1}"
-        
-        players[keys[i]] = {
-            'name': name,
-            'score': 0
-        }
-        key_map[keys[i]] = name
-    
-    if num_players > 1:
-        print("\n" + "=" * 50)
-        print("BUZZER KEYS:")
-        for key, player in players.items():
-            print(f"  {key} - {player['name']}")
-        print("=" * 50 + "\n")
 
-        if nonTTY:
-            print("It looks like your running in an iPython console.")
-            print("No worries! On buzz in, you will have to press enter after your key.")
-            print("To have the buzzer more realistic, run the game with `python3 main.py` or similar in a local terminal.")
-            print("Press enter to confirm you have read the above...")
-            input()
-    return players
+    print()  # Add blank line for spacing
 
+    if num_players == 1:
+        game = SinglePlayerGame(questions, num_players)
+    else:
+        game = MultiPlayerGame(questions, num_players)
 
-def display_question(index, show_buzz=True):
-    """print question and options. Returns question answer."""
-    
-    print(f"\nQuestion {QUESTIONS[index]['question_index']}: {QUESTIONS[index]['question']}")
-    for option in QUESTIONS[index]['options']:
-        print(f"  {option}")
-    
-    return QUESTIONS[index]['answer']
-
-
-def get_valid_answer():
-    """get a valid answer (A, B, or C) from the user."""
-    
-    while True:
-        user_answer = input("Answer >> ").upper().strip()
-        if user_answer in ('A', 'B', 'C'):
-            return user_answer
-        else:
-            print("Invalid input! Please enter A, B, or C.")
-
-
-def display_scores(players):
-    """display current scores for all players."""
-    
-    print("\n" + "-" * 50)
-    print("CURRENT SCORES:")
-    for key, player in sorted(players.items()):
-        print(f"  {player['name']}: {player['score']}")
-    print("-" * 50)
-
-
-def main():
-    players = setup_players()
-    single_player = len(players) == 1
-
-    for i in range(len(QUESTIONS)):
-        correct_answer = display_question(i, show_buzz=not single_player)
-        question_answered = False
-        attempts = 0
-        first_buzzer = None
-
-        if single_player:
-            # single player mode where they just answer directly
-            player_key = list(players.keys())[0]
-            buzzing_player = players[player_key]
-            user_answer = get_valid_answer()
-
-            if user_answer == correct_answer:
-                buzzing_player['score'] += 1
-                print(f"Correct! +1 point. Score: {buzzing_player['score']}/{i+1}")
-            else:
-                print(f"Incorrect. The correct answer was {correct_answer}. Score: {buzzing_player['score']}/{i+1}")
-
-            question_answered = True
-
-        else:
-            # multiplayer mode where it allows up to 2 attempts
-            while not question_answered and attempts < 2:
-                print("\nBUZZ IN WITH YOUR KEY")
-                buzzer_key = wait_for_buzz()
-
-                if buzzer_key not in players:
-                    print(f"\nKey {buzzer_key} is not assigned to a player.")
-                    continue
-
-                # check if this is the same player who already tried
-                if attempts == 1 and buzzer_key == first_buzzer:
-                    print(f"{players[buzzer_key]['name']} already attempted this question.")
-                    continue
-
-                buzzing_player = players[buzzer_key]
-                print(f"\n{buzzing_player['name']} buzzed in.")
-
-                if attempts == 0:
-                    first_buzzer = buzzer_key
-
-                # Get their answer
-                user_answer = get_valid_answer()
-                attempts += 1
-
-                if user_answer == correct_answer:
-                    buzzing_player['score'] += 1
-                    if attempts == 1:
-                        print(f"Correct. +1 point to {buzzing_player['name']}")
-                    else:
-                        print(f"Correct! Steal successful. +1 point to {buzzing_player['name']}")
-                    question_answered = True
-                else:
-                    if attempts == 1:
-                        print("Incorrect. Steal opportunity available.")
-                    else:
-                        print(f"Incorrect. The correct answer was {correct_answer}")
-                        print("Question skipped.")
-                        question_answered = True
-
-            display_scores(players)
-
-            if i < len(QUESTIONS) - 1:
-                input("\nPress Enter for next question...")
-
-
-    print("\n" + "=" * 50)
-    print("FINAL RESULTS")
-    print("=" * 50)
-
-    sorted_players = sorted(players.items(), key=lambda x: x[1]['score'], reverse=True)
-
-    for rank, (key, player) in enumerate(sorted_players, 1):
-        percentage = (player['score'] / len(QUESTIONS)) * 100
-        print(f"{rank}. {player['name']}: {player['score']}/{len(QUESTIONS)} ({percentage:.1f}%)")
-
-    if not single_player:
-        winner = sorted_players[0][1]
-        print(f"\nWinner: {winner['name']} with {winner['score']} points")
-    print("=" * 50)
+    game.run()
 
 
 if __name__ == "__main__":
-    with open('questions.json', 'r', encoding='utf-8') as f:
-        QUESTIONS = json.load(f)
-
-    nonTTY = not os.isatty(sys.stdin.fileno())
 
     main()
