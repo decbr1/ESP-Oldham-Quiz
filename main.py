@@ -81,9 +81,7 @@ def display_question(index, show_buzz=True):
     print(f"\nQuestion {QUESTIONS[index]['question_index']}: {QUESTIONS[index]['question']}")
     for option in QUESTIONS[index]['options']:
         print(f"  {option}")
-    if show_buzz:
-        print("\nBUZZ IN WITH YOUR KEY")
-
+    
     return QUESTIONS[index]['answer']
 
 
@@ -111,43 +109,78 @@ def display_scores(players):
 def main():
     players = setup_players()
     single_player = len(players) == 1
-
+    
     for i in range(len(QUESTIONS)):
         correct_answer = display_question(i, show_buzz=not single_player)
-
+        question_answered = False
+        attempts = 0
+        first_buzzer = None
+        
         if single_player:
-            # single player mode where they answer directly
+            # Single player mode - just answer directly
             player_key = list(players.keys())[0]
             buzzing_player = players[player_key]
             user_answer = get_valid_answer()
-        else:
-            # multiplayer mode where it waits for buzz
-            buzzer_key = wait_for_buzz()
-
-            if buzzer_key not in players:
-                print(f"\nKey {buzzer_key} is not assigned to a player.")
-                continue
             
-            buzzing_player = players[buzzer_key]
-            print(f"\n{buzzing_player['name']} buzzed in.")
+            if user_answer == correct_answer:
+                buzzing_player['score'] += 1
+                print(f"Correct. +1 point to {buzzing_player['name']}")
+            else:
+                print(f"Incorrect. The correct answer was {correct_answer}")
             
-            user_answer = get_valid_answer()
-        
-        if user_answer == correct_answer:
-            buzzing_player['score'] += 1
-            print(f"Correct. +1 point to {buzzing_player['name']}")
+            question_answered = True
+            
         else:
-            print(f"Incorrect. The correct answer was {correct_answer}")
+            # Multiplayer mode - allow up to 2 attempts
+            while not question_answered and attempts < 2:
+                print("\nBUZZ IN WITH YOUR KEY")
+                buzzer_key = wait_for_buzz()
+                
+                if buzzer_key not in players:
+                    print(f"\nKey {buzzer_key} is not assigned to a player.")
+                    continue
+                
+                # check if this is the same player who already tried
+                if attempts == 1 and buzzer_key == first_buzzer:
+                    print(f"{players[buzzer_key]['name']} already attempted this question.")
+                    continue
+                
+                buzzing_player = players[buzzer_key]
+                print(f"\n{buzzing_player['name']} buzzed in.")
+                
+                if attempts == 0:
+                    first_buzzer = buzzer_key
+                
+                # Get their answer
+                user_answer = get_valid_answer()
+                attempts += 1
+                
+                if user_answer == correct_answer:
+                    buzzing_player['score'] += 1
+                    if attempts == 1:
+                        print(f"Correct. +1 point to {buzzing_player['name']}")
+                    else:
+                        print(f"Correct! Steal successful. +1 point to {buzzing_player['name']}")
+                    question_answered = True
+                else:
+                    if attempts == 1:
+                        print("Incorrect. Steal opportunity available.")
+                    else:
+                        print(f"Incorrect. The correct answer was {correct_answer}")
+                        print("Question skipped.")
+                        question_answered = True
         
         display_scores(players)
         
         if i < len(QUESTIONS) - 1:
             input("\nPress Enter for next question...")
-
+    
+    # Final results
     print("\n" + "=" * 50)
     print("FINAL RESULTS")
     print("=" * 50)
-
+    
+    # Sort players by score (descending)
     sorted_players = sorted(players.items(), key=lambda x: x[1]['score'], reverse=True)
     
     for rank, (key, player) in enumerate(sorted_players, 1):
@@ -158,7 +191,6 @@ def main():
         winner = sorted_players[0][1]
         print(f"\nWinner: {winner['name']} with {winner['score']} points")
     print("=" * 50)
-
 
 if __name__ == "__main__":
     with open('questions.json', 'r', encoding='utf-8') as f:
