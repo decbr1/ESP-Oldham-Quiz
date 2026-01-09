@@ -117,7 +117,7 @@ def main():
         first_buzzer = None
         
         if single_player:
-            # Single player mode - just answer directly
+            # single player mode where they just answer directly
             player_key = list(players.keys())[0]
             buzzing_player = players[player_key]
             user_answer = get_valid_answer()
@@ -131,7 +131,7 @@ def main():
             question_answered = True
             
         else:
-            # Multiplayer mode - allow up to 2 attempts
+            # multiplayer mode where it allows up to 2 attempts
             while not question_answered and attempts < 2:
                 print("\nBUZZ IN WITH YOUR KEY")
                 buzzer_key = wait_for_buzz()
@@ -171,16 +171,15 @@ def main():
                         question_answered = True
         
         display_scores(players)
-        
+
         if i < len(QUESTIONS) - 1:
             input("\nPress Enter for next question...")
-    
-    # Final results
+
+
     print("\n" + "=" * 50)
     print("FINAL RESULTS")
     print("=" * 50)
     
-    # Sort players by score (descending)
     sorted_players = sorted(players.items(), key=lambda x: x[1]['score'], reverse=True)
     
     for rank, (key, player) in enumerate(sorted_players, 1):
