@@ -1,17 +1,17 @@
 # Oldham Quiz
 
-A terminal-based quiz game about Oldham Athletic Football Club, featuring both single-player and multiplayer modes with buzzer support.
+A terminal-based quiz game about Oldham Athletic, created as practice for DSD ESP Task 4a.<br>
+This project (and readme!) was written without use of any Generative AI.
 
 ## Features
 
-- **Single Player Mode**: Test your knowledge of Oldham Athletic on your own
-- **Multiplayer Mode (2-3 players)**: Compete with friends using buzzer keys
-- **High Score Database**: Automatic score saving and leaderboard tracking
-- **Colorized Output**: Enhanced visual experience with color-coded feedback
-- **Cross-Platform Support**: Works on Windows, macOS, and Linux
-- **20 Questions**: Comprehensive trivia about Oldham Athletic FC
-- **Real-time Buzzer System**: Fast-paced competitive gameplay in multiplayer mode
-- **Score Tracking**: See your progress and final results with persistent leaderboards
+- **Single Player Mode**: Answer questions at the pleasure of nobody but yourself.
+- **Multiplayer Mode (2-3 players)**: Answer questions stressfully with friends and family.
+- **High Score Database**: High Scores saved to a database, just the like arcades.
+- **Colourized Output**: ANSI colours for the benefit of your eyes. And brain.
+- **20 Questions**: Modular questions.json file, add your own if you so choose!
+- **Real-time Buzzer System**: Buzz in quick without needing to hit enter!
+- **Cross-Platform Support**: Buzzer input works on macOS, Linux, and Windows.
 
 ## Requirements
 
@@ -36,7 +36,7 @@ A terminal-based quiz game about Oldham Athletic Football Club, featuring both s
 For the best experience with real-time buzzer input, run from a terminal:
 
 ```bash
-python3 old_main_bkp.py
+python3 main.py
 ```
 
 You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will require pressing Enter after each key in multiplayer mode.
@@ -86,7 +86,7 @@ After startup, you'll see the main menu with the following options:
 ESP-Oldham-Quiz/
 ├── oldham_quiz/            # Main package
 │   ├── __init__.py         # Package initialization and exports
-│   ├── colors.py           # ANSI color codes utility
+│   ├── colours.py           # ANSI colour codes utility
 │   ├── database.py         # High score database manager (SQLite)
 │   ├── models.py           # Player and Question data models
 │   ├── input_handler.py    # Buzzer and keyboard input handling
@@ -105,8 +105,8 @@ The project uses a **modular architecture** with object-oriented programming pri
 
 ### Modules:
 
-**`oldham_quiz/colors.py`**
-- **`Colours`**: ANSI color codes utility class for colorized terminal output
+**`oldham_quiz/colours.py`**
+- **`Colours`**: ANSI colour codes utility class for colourised terminal output
 
 **`oldham_quiz/database.py`**
 - **`HighScoreDatabase`**: SQLite database manager for persistent high score storage
@@ -135,7 +135,7 @@ The project uses a **modular architecture** with object-oriented programming pri
 
 ```
 oldham_quiz/
-├── colors.py
+├── colours.py
 │   └── Colours (utility class)
 ├── database.py
 │   └── HighScoreDatabase (utility class)
@@ -166,29 +166,29 @@ QuizGame (ABC)
 
 ```
 main()
-  → Load questions into Question objects
-  → Initialize HighScoreDatabase
-  → Display copyright notice
-  → Main Menu Loop:
-      → Option 1: Start New Game
-          → Determine number of players
-          → Create SinglePlayerGame or MultiPlayerGame
-          → game.run()
-              → game.setup_players()
-              → For each question:
-                  → question.display()
-                  → game.play_question()
-              → game.display_final_results()
-                  → Save all player scores to database
-          → Prompt to view high scores
-      → Option 2: View High Scores
-          → Choose filter (All/Single/Multiplayer)
-          → Display leaderboard from database
-      → Option 3: Exit
+  -> Load questions into Question objects
+  -> Initialise HighScoreDatabase
+  -> Display copyright notice
+  -> Main Menu Loop:
+      -> Option 1: Start New Game
+          -> Determine number of players
+          -> Create SinglePlayerGame or MultiPlayerGame
+          -> game.run()
+              -> game.setup_players()
+              -> For each question:
+                  -> question.display()
+                  -> game.play_question()
+              -> game.display_final_results()
+                  -> Save all player scores to database
+          -> Prompt to view high scores
+      -> Option 2: View High Scores
+          -> Choose filter (All/Single/Multiplayer)
+          -> Display leaderboard from database
+      -> Option 3: Exit
 ```
 
 ## **Code Quality**
-- **Modular Architecture**: Code organized into separate, focused modules
+- **Modular Architecture**: Code organised into separate, focused modules
 - **Single Responsibility Principle**: Each module has a clear, specific purpose
 - Proper docstrings for all classes and methods (Google style)
 - Type hints throughout (`List[Question]`, `Optional[str]`, etc.)
@@ -196,7 +196,7 @@ main()
 - Consistent spacing and indentation (PEP 8 compliant)
 - Line lengths kept reasonable
 - Clear, descriptive variable names
-- ANSI color codes encapsulated in dedicated `Colours` utility class
+- ANSI colour codes encapsulated in dedicated `Colours` utility class
 - Easy to extend and maintain
 
 ## Platform Notes
@@ -215,9 +215,9 @@ main()
 - Requires pressing Enter after each key press
 - Still fully functional, just slightly less responsive
 
-## Color Scheme
+## Colour Scheme
 
-The game features colorized output for enhanced visual experience:
+The game features colourised output for enhanced visual experience:
 
 - **🟢 Green**: Correct answers, winner announcements
 - **🔴 Red**: Incorrect answers, error messages, invalid input
@@ -227,7 +227,7 @@ The game features colorized output for enhanced visual experience:
 - **🔷 Blue**: Subsection headers (BUZZER KEYS, CURRENT SCORES)
 - **Bold**: Emphasis on scores, titles, and important information
 
-Colors work on all modern terminals using ANSI escape codes (no external dependencies required).
+Colours work on all modern terminals using ANSI escape codes (no external dependencies required).
 
 ## High Scores & Leaderboard
 
