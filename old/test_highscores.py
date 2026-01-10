@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test script for high score database."""
 
-from main import HighScoreDatabase
+from old_main_bkp import HighScoreDatabase
 import os
 
 # Test the database

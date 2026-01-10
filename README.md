@@ -36,7 +36,7 @@ A terminal-based quiz game about Oldham Athletic Football Club, featuring both s
 For the best experience with real-time buzzer input, run from a terminal:
 
 ```bash
-python3 main.py
+python3 old_main_bkp.py
 ```
 
 You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will require pressing Enter after each key in multiplayer mode.
@@ -84,38 +84,82 @@ After startup, you'll see the main menu with the following options:
 
 ```
 ESP-Oldham-Quiz/
-├── main.py              # Main game logic and classes
-├── questions.json       # Quiz questions database
-├── high_scores.db       # SQLite database for high scores (auto-created)
-├── README.md            # This file!
-└── LICENSE              # License information
+├── oldham_quiz/            # Main package
+│   ├── __init__.py         # Package initialization and exports
+│   ├── colors.py           # ANSI color codes utility
+│   ├── database.py         # High score database manager (SQLite)
+│   ├── models.py           # Player and Question data models
+│   ├── input_handler.py    # Buzzer and keyboard input handling
+│   ├── game_modes.py       # QuizGame, SinglePlayerGame, MultiPlayerGame
+│   └── utils.py            # Helper functions (load_questions, warranties)
+├── main.py                 # Entry point - game loop and menu
+├── questions.json          # Quiz questions database
+├── high_scores.db          # SQLite database for high scores (auto-created)
+├── README.md               # This file!
+└── LICENSE                 # License information
 ```
 
 ## Code Architecture
 
-The project uses object-oriented programming with the following key classes:
+The project uses a **modular architecture** with object-oriented programming principles. Code is organized into separate modules for maintainability:
 
-- **`Colors`**: ANSI color codes utility class for colorized terminal output
+### Modules:
+
+**`oldham_quiz/colors.py`**
+- **`Colours`**: ANSI color codes utility class for colorized terminal output
+
+**`oldham_quiz/database.py`**
 - **`HighScoreDatabase`**: SQLite database manager for persistent high score storage
+
+**`oldham_quiz/models.py`**
 - **`Player`**: Represents a quiz player with name, key, and score
 - **`Question`**: Represents a quiz question with options and answer
+
+**`oldham_quiz/input_handler.py`**
 - **`BuzzerInput`**: Handles cross-platform keyboard input
+
+**`oldham_quiz/game_modes.py`**
 - **`QuizGame`**: Abstract base class for game modes
   - **`SinglePlayerGame`**: Single-player implementation
   - **`MultiPlayerGame`**: Multiplayer implementation with buzzer logic
 
-## Class Hierarchy
+**`oldham_quiz/utils.py`**
+- **`load_questions()`**: Load questions from JSON file
+- **`show_warranty()`**: Display GPL warranty information
+- **`show_conditions()`**: Display GPL redistribution conditions
+
+**`main.py`**
+- Entry point with main menu loop and game initialization
+
+## Module Organization
+
+```
+oldham_quiz/
+├── colors.py
+│   └── Colours (utility class)
+├── database.py
+│   └── HighScoreDatabase (utility class)
+├── models.py
+│   ├── Player (data class)
+│   └── Question (data class)
+├── input_handler.py
+│   └── BuzzerInput (utility class)
+├── game_modes.py
+│   ├── QuizGame (ABC)
+│   ├── SinglePlayerGame (extends QuizGame)
+│   └── MultiPlayerGame (extends QuizGame)
+└── utils.py
+    ├── load_questions()
+    ├── show_warranty()
+    └── show_conditions()
+```
+
+### Class Hierarchy
 
 ```
 QuizGame (ABC)
 ├── SinglePlayerGame
 └── MultiPlayerGame
-
-Player (data class)
-Question (data class)
-BuzzerInput (utility class)
-Colors (utility class)
-HighScoreDatabase (utility class)
 ```
 
 ## Game Flow
@@ -143,14 +187,17 @@ main()
       → Option 3: Exit
 ```
 
-## **PEP8 Compliance**
+## **Code Quality**
+- **Modular Architecture**: Code organized into separate, focused modules
+- **Single Responsibility Principle**: Each module has a clear, specific purpose
 - Proper docstrings for all classes and methods (Google style)
 - Type hints throughout (`List[Question]`, `Optional[str]`, etc.)
 - Constants in UPPER_CASE (`MAX_ATTEMPTS`, `VALID_KEYS`, `BUZZER_KEYS`)
-- Consistent spacing and indentation
+- Consistent spacing and indentation (PEP 8 compliant)
 - Line lengths kept reasonable
 - Clear, descriptive variable names
-- ANSI color codes encapsulated in dedicated `Colors` utility class
+- ANSI color codes encapsulated in dedicated `Colours` utility class
+- Easy to extend and maintain
 
 ## Platform Notes
 
