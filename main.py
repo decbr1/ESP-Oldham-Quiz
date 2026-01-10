@@ -644,7 +644,7 @@ def main():
             continue
 
         elif choice == '3':
-            print(f"\n{Colors.CYAN}Thanks for playing! Goodbye!{Colors.RESET}\n")
+            print(f"\n{Colors.CYAN}Thanks for playing!{Colors.RESET}\n")
             break
 
         elif choice == '1':
