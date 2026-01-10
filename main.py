@@ -14,9 +14,9 @@ from typing import List, Dict, Optional
 from datetime import datetime
 
 
-class Colors:
-    """ANSI color codes for terminal output."""
-    # Basic colors
+class Colours:
+    """ANSI colour codes for terminal output."""
+    # Basic Colours
     RED = '\033[91m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
@@ -34,17 +34,17 @@ class Colors:
 
     @staticmethod
     def disable():
-        """Disable colors (for non-ANSI terminals)."""
-        Colors.RED = ''
-        Colors.GREEN = ''
-        Colors.YELLOW = ''
-        Colors.BLUE = ''
-        Colors.MAGENTA = ''
-        Colors.CYAN = ''
-        Colors.WHITE = ''
-        Colors.BOLD = ''
-        Colors.UNDERLINE = ''
-        Colors.RESET = ''
+        """Disable Colours (for non-ANSI terminals)."""
+        Colours.RED = ''
+        Colours.GREEN = ''
+        Colours.YELLOW = ''
+        Colours.BLUE = ''
+        Colours.MAGENTA = ''
+        Colours.CYAN = ''
+        Colours.WHITE = ''
+        Colours.BOLD = ''
+        Colours.UNDERLINE = ''
+        Colours.RESET = ''
 
 
 class HighScoreDatabase:
@@ -157,26 +157,26 @@ class HighScoreDatabase:
         scores = self.get_top_scores(limit, game_mode)
 
         if not scores:
-            print(f"\n{Colors.YELLOW}No high scores yet. Be the first!{Colors.RESET}\n")
+            print(f"\n{Colours.YELLOW}No high scores yet. Be the first!{Colours.RESET}\n")
             return
 
         mode_text = f" ({game_mode.upper()})" if game_mode else " (ALL MODES)"
         print("\n" + "=" * 70)
-        print(f"{Colors.BOLD}{Colors.MAGENTA}HIGH SCORES LEADERBOARD{mode_text}{Colors.RESET}")
+        print(f"{Colours.BOLD}{Colours.MAGENTA}HIGH SCORES LEADERBOARD{mode_text}{Colours.RESET}")
         print("=" * 70)
 
         for rank, score_data in enumerate(scores, 1):
             mode_badge = "[S]" if score_data['game_mode'] == 'single' else "[M]"
             timestamp = score_data['timestamp'].split()[0]  # Just the date
 
-            print(f"{Colors.CYAN}{rank:2d}. {score_data['player_name']:<20}{Colors.RESET} "
-                  f"{Colors.BOLD}{score_data['score']:2d}/{score_data['total_questions']:2d}{Colors.RESET} "
+            print(f"{Colours.CYAN}{rank:2d}. {score_data['player_name']:<20}{Colours.RESET} "
+                  f"{Colours.BOLD}{score_data['score']:2d}/{score_data['total_questions']:2d}{Colours.RESET} "
                   f"({score_data['percentage']:5.1f}%)  "
-                  f"{Colors.YELLOW}{mode_badge}{Colors.RESET}  "
-                  f"{Colors.WHITE}{timestamp}{Colors.RESET}")
+                  f"{Colours.YELLOW}{mode_badge}{Colours.RESET}  "
+                  f"{Colours.WHITE}{timestamp}{Colours.RESET}")
 
         print("=" * 70)
-        print(f"{Colors.WHITE}Legend: [S] = Single Player, [M] = Multiplayer{Colors.RESET}\n")
+        print(f"{Colours.WHITE}Legend: [S] = Single Player, [M] = Multiplayer{Colours.RESET}\n")
 
 
 # Platform-specific key press detection
@@ -227,9 +227,9 @@ class Question:
 
     def display(self):
         """Display the question and its options."""
-        print(f"\n{Colors.CYAN}{Colors.BOLD}Question {self.index}:{Colors.RESET} {Colors.WHITE}{self.text}{Colors.RESET}")
+        print(f"\n{Colours.CYAN}{Colours.BOLD}Question {self.index}:{Colours.RESET} {Colours.WHITE}{self.text}{Colours.RESET}")
         for option in self.options:
-            print(f"  {Colors.YELLOW}{option}{Colors.RESET}")
+            print(f"  {Colours.YELLOW}{option}{Colours.RESET}")
 
 
 class BuzzerInput:
@@ -284,7 +284,7 @@ class BuzzerInput:
             key = input("").upper().strip()
             if key in self.VALID_KEYS:
                 return key
-            print(f"{Colors.RED}Invalid key! Please enter {', '.join(self.VALID_KEYS)}.{Colors.RESET}")
+            print(f"{Colours.RED}Invalid key! Please enter {', '.join(self.VALID_KEYS)}.{Colours.RESET}")
 
     @staticmethod
     def get_valid_answer() -> str:
@@ -299,7 +299,7 @@ class BuzzerInput:
             if user_answer in ('A', 'B', 'C'):
                 return user_answer
             else:
-                print(f"{Colors.RED}Invalid input! Please enter A, B, or C.{Colors.RESET}")
+                print(f"{Colours.RED}Invalid input! Please enter A, B, or C.{Colours.RESET}")
 
 
 class QuizGame(ABC):
@@ -342,7 +342,7 @@ class QuizGame(ABC):
     def display_final_results(self):
         """Display final game results."""
         print("\n" + "=" * 50)
-        print(f"{Colors.BOLD}{Colors.MAGENTA}FINAL RESULTS{Colors.RESET}")
+        print(f"{Colours.BOLD}{Colours.MAGENTA}FINAL RESULTS{Colours.RESET}")
         print("=" * 50)
 
         sorted_players = sorted(
@@ -363,8 +363,8 @@ class QuizGame(ABC):
 
         for rank, player in enumerate(sorted_players, 1):
             percentage = (player.score / len(self.questions)) * 100
-            print(f"{Colors.CYAN}{rank}. {player.name}:{Colors.RESET} {Colors.BOLD}{player.score}/"
-                  f"{len(self.questions)}{Colors.RESET} ({percentage:.1f}%)")
+            print(f"{Colours.CYAN}{rank}. {player.name}:{Colours.RESET} {Colours.BOLD}{player.score}/"
+                  f"{len(self.questions)}{Colours.RESET} ({percentage:.1f}%)")
 
         self._display_winner(sorted_players)
         print("=" * 50)
@@ -407,10 +407,10 @@ class SinglePlayerGame(QuizGame):
 
         if user_answer == question.answer:
             player.add_point()
-            print(f"{Colors.GREEN}Correct! +1 point.{Colors.RESET} Score: {Colors.BOLD}{player.score}/{question_num + 1}{Colors.RESET}")
+            print(f"{Colours.GREEN}Correct! +1 point.{Colours.RESET} Score: {Colours.BOLD}{player.score}/{question_num + 1}{Colours.RESET}")
         else:
-            print(f"{Colors.RED}Incorrect.{Colors.RESET} The correct answer was {Colors.BOLD}{question.answer}{Colors.RESET}. "
-                  f"Score: {Colors.BOLD}{player.score}/{question_num + 1}{Colors.RESET}")
+            print(f"{Colours.RED}Incorrect.{Colours.RESET} The correct answer was {Colours.BOLD}{question.answer}{Colours.RESET}. "
+                  f"Score: {Colours.BOLD}{player.score}/{question_num + 1}{Colours.RESET}")
 
         return True
 
@@ -449,9 +449,9 @@ class MultiPlayerGame(QuizGame):
     def _display_buzzer_info(self):
         """Display buzzer key assignments and setup info."""
         print("\n" + "=" * 50)
-        print(f"{Colors.BOLD}{Colors.BLUE}BUZZER KEYS:{Colors.RESET}")
+        print(f"{Colours.BOLD}{Colours.BLUE}BUZZER KEYS:{Colours.RESET}")
         for player in self.players.values():
-            print(f"  {Colors.YELLOW}{player.key}{Colors.RESET} - {Colors.CYAN}{player.name}{Colors.RESET}")
+            print(f"  {Colours.YELLOW}{player.key}{Colours.RESET} - {Colours.CYAN}{player.name}{Colours.RESET}")
         print("=" * 50 + "\n")
 
         if not self.buzzer.is_tty:
@@ -468,14 +468,14 @@ class MultiPlayerGame(QuizGame):
         first_buzzer = None
 
         while attempts < self.MAX_ATTEMPTS:
-            print(f"\n{Colors.BOLD}{Colors.MAGENTA}BUZZ IN WITH YOUR KEY{Colors.RESET}")
+            print(f"\n{Colours.BOLD}{Colours.MAGENTA}BUZZ IN WITH YOUR KEY{Colours.RESET}")
             buzzer_key = self.buzzer.wait_for_buzz()
 
             if not self._is_valid_buzz(buzzer_key, first_buzzer, attempts):
                 continue
 
             player = self.players[buzzer_key]
-            print(f"{Colors.CYAN}{player.name}{Colors.RESET} buzzed in.")
+            print(f"{Colours.CYAN}{player.name}{Colours.RESET} buzzed in.")
 
             if attempts == 0:
                 first_buzzer = buzzer_key
@@ -486,15 +486,15 @@ class MultiPlayerGame(QuizGame):
             if user_answer == question.answer:
                 player.add_point()
                 if attempts == 1:
-                    print(f"{Colors.GREEN}Correct. +1 point to {player.name}{Colors.RESET}")
+                    print(f"{Colours.GREEN}Correct. +1 point to {player.name}{Colours.RESET}")
                 else:
-                    print(f"{Colors.GREEN}Correct! Steal successful. +1 point to {player.name}{Colors.RESET}")
+                    print(f"{Colours.GREEN}Correct! Steal successful. +1 point to {player.name}{Colours.RESET}")
                 break
             else:
                 if attempts == 1:
-                    print(f"{Colors.RED}Incorrect.{Colors.RESET} Steal opportunity available.")
+                    print(f"{Colours.RED}Incorrect.{Colours.RESET} Steal opportunity available.")
                 else:
-                    print(f"{Colors.RED}Incorrect.{Colors.RESET} The correct answer was {Colors.BOLD}{question.answer}{Colors.RESET}")
+                    print(f"{Colours.RED}Incorrect.{Colours.RESET} The correct answer was {Colours.BOLD}{question.answer}{Colours.RESET}")
                     print("Question skipped.")
                     break
 
@@ -519,12 +519,12 @@ class MultiPlayerGame(QuizGame):
             True if the buzz is valid, False otherwise
         """
         if buzzer_key not in self.players:
-            print(f"\n{Colors.RED}Key {buzzer_key} is not assigned to a player.{Colors.RESET}")
+            print(f"\n{Colours.RED}Key {buzzer_key} is not assigned to a player.{Colours.RESET}")
             return False
 
         if attempts == 1 and buzzer_key == first_buzzer:
-            print(f"{Colors.RED}{self.players[buzzer_key].name} already attempted "
-                  f"this question.{Colors.RESET}")
+            print(f"{Colours.RED}{self.players[buzzer_key].name} already attempted "
+                  f"this question.{Colours.RESET}")
             return False
 
         return True
@@ -532,16 +532,16 @@ class MultiPlayerGame(QuizGame):
     def _display_current_scores(self):
         """Display current scores for all players."""
         print("\n" + "-" * 50)
-        print(f"{Colors.BOLD}{Colors.BLUE}CURRENT SCORES:{Colors.RESET}")
+        print(f"{Colours.BOLD}{Colours.BLUE}CURRENT SCORES:{Colours.RESET}")
         for player in sorted(self.players.values(), key=lambda p: p.key):
-            print(f"  {Colors.CYAN}{player.name}:{Colors.RESET} {Colors.BOLD}{player.score}{Colors.RESET}")
+            print(f"  {Colours.CYAN}{player.name}:{Colours.RESET} {Colours.BOLD}{player.score}{Colours.RESET}")
         print("-" * 50)
 
     def _display_winner(self, sorted_players: List[Player]):
         """Display the game winner."""
         if sorted_players:
             winner = sorted_players[0]
-            print(f"\n{Colors.GREEN}{Colors.BOLD}Winner: {winner.name} with {winner.score} points!{Colors.RESET}")
+            print(f"\n{Colours.GREEN}{Colours.BOLD}Winner: {winner.name} with {winner.score} points!{Colours.RESET}")
 
     def get_game_mode(self) -> str:
         """Return the game mode identifier."""
@@ -600,8 +600,8 @@ def main():
     questions = load_questions('questions.json')
     high_score_db = HighScoreDatabase()
 
-    print(f"\n{Colors.BOLD}{Colors.CYAN}=== OLDHAM QUIZ ==={Colors.RESET}")
-    print(f"{Colors.WHITE}Copyright (C) 2026 DecBr1{Colors.RESET}")
+    print(f"\n{Colours.BOLD}{Colours.CYAN}=== OLDHAM QUIZ ==={Colours.RESET}")
+    print(f"{Colours.WHITE}Copyright (C) 2026 DecBr1{Colours.RESET}")
     print("This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.")
     print("This is free software, and you are welcome to redistribute it under certain conditions; for details type 'c'.\n")
     response = input("Press Enter to continue, or type 'w' or 'c': ").strip().lower()
@@ -615,20 +615,20 @@ def main():
     # Main menu loop
     while True:
         print()
-        print(f"{Colors.BOLD}{Colors.CYAN}MAIN MENU{Colors.RESET}")
-        print(f"1. {Colors.GREEN}Start New Game{Colors.RESET}")
-        print(f"2. {Colors.YELLOW}View High Scores{Colors.RESET}")
-        print(f"3. {Colors.RED}Exit{Colors.RESET}")
+        print(f"{Colours.BOLD}{Colours.CYAN}MAIN MENU{Colours.RESET}")
+        print(f"1. {Colours.GREEN}Start New Game{Colours.RESET}")
+        print(f"2. {Colours.YELLOW}View High Scores{Colours.RESET}")
+        print(f"3. {Colours.RED}Exit{Colours.RESET}")
 
         choice = input("\nSelect option (1-3): ").strip()
 
         if choice == '2':
             # View high scores
             print()
-            print(f"1. {Colors.CYAN}All Scores{Colors.RESET}")
-            print(f"2. {Colors.CYAN}Single Player Only{Colors.RESET}")
-            print(f"3. {Colors.CYAN}Multiplayer Only{Colors.RESET}")
-            print(f"4. {Colors.CYAN}Back to Main Menu{Colors.RESET}")
+            print(f"1. {Colours.CYAN}All Scores{Colours.RESET}")
+            print(f"2. {Colours.CYAN}Single Player Only{Colours.RESET}")
+            print(f"3. {Colours.CYAN}Multiplayer Only{Colours.RESET}")
+            print(f"4. {Colours.CYAN}Back to Main Menu{Colours.RESET}")
 
             view_choice = input("\nSelect option (1-4): ").strip()
 
@@ -644,7 +644,7 @@ def main():
             continue
 
         elif choice == '3':
-            print(f"\n{Colors.CYAN}Thanks for playing!{Colors.RESET}\n")
+            print(f"\n{Colours.CYAN}Thanks for playing!{Colours.RESET}\n")
             break
 
         elif choice == '1':
@@ -655,9 +655,9 @@ def main():
                 try:
                     num_players = int(input("How many players? (1-3): "))
                     if num_players < 1 or num_players > 3:
-                        print(f"{Colors.RED}Please enter a number between 1 and 3.{Colors.RESET}")
+                        print(f"{Colours.RED}Please enter a number between 1 and 3.{Colours.RESET}")
                 except ValueError:
-                    print(f"{Colors.RED}Please enter a valid number.{Colors.RESET}")
+                    print(f"{Colours.RED}Please enter a valid number.{Colours.RESET}")
 
             print()  # Add blank line for spacing
 
@@ -670,12 +670,12 @@ def main():
 
             # Ask if they want to see high scores after game
             print()
-            view_scores = input(f"{Colors.YELLOW}View high scores? (y/n): {Colors.RESET}").strip().lower()
+            view_scores = input(f"{Colours.YELLOW}View high scores? (y/n): {Colours.RESET}").strip().lower()
             if view_scores == 'y':
                 high_score_db.display_leaderboard()
                 input("\nPress Enter to continue...")
         else:
-            print(f"{Colors.RED}Invalid option. Please select 1, 2, or 3.{Colors.RESET}")
+            print(f"{Colours.RED}Invalid option. Please select 1, 2, or 3.{Colours.RESET}")
 
 
 
