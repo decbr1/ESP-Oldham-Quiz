@@ -36,7 +36,7 @@ A terminal-based quiz game about Oldham Athletic Football Club, featuring both s
 For the best experience with real-time buzzer input, run from a terminal:
 
 ```bash
-python3 old_main_bkp.py
+python3 main.py
 ```
 
 You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will require pressing Enter after each key in multiplayer mode.
@@ -105,7 +105,7 @@ The project uses a **modular architecture** with object-oriented programming pri
 
 ### Modules:
 
-**`oldham_quiz/colors.py`**
+**`oldham_quiz/colours.py`**
 - **`Colours`**: ANSI color codes utility class for colorized terminal output
 
 **`oldham_quiz/database.py`**
@@ -135,7 +135,7 @@ The project uses a **modular architecture** with object-oriented programming pri
 
 ```
 oldham_quiz/
-├── colors.py
+├── colours.py
 │   └── Colours (utility class)
 ├── database.py
 │   └── HighScoreDatabase (utility class)
@@ -166,25 +166,25 @@ QuizGame (ABC)
 
 ```
 main()
-  → Load questions into Question objects
-  → Initialize HighScoreDatabase
-  → Display copyright notice
-  → Main Menu Loop:
-      → Option 1: Start New Game
-          → Determine number of players
-          → Create SinglePlayerGame or MultiPlayerGame
-          → game.run()
-              → game.setup_players()
-              → For each question:
-                  → question.display()
-                  → game.play_question()
-              → game.display_final_results()
-                  → Save all player scores to database
-          → Prompt to view high scores
-      → Option 2: View High Scores
-          → Choose filter (All/Single/Multiplayer)
-          → Display leaderboard from database
-      → Option 3: Exit
+  -> Load questions into Question objects
+  -> Initialize HighScoreDatabase
+  -> Display copyright notice
+  -> Main Menu Loop:
+      -> Option 1: Start New Game
+          -> Determine number of players
+          -> Create SinglePlayerGame or MultiPlayerGame
+          -> game.run()
+              -> game.setup_players()
+              -> For each question:
+                  -> question.display()
+                  -> game.play_question()
+              -> game.display_final_results()
+                  -> Save all player scores to database
+          -> Prompt to view high scores
+      -> Option 2: View High Scores
+          -> Choose filter (All/Single/Multiplayer)
+          -> Display leaderboard from database
+      -> Option 3: Exit
 ```
 
 ## **Code Quality**
@@ -215,9 +215,9 @@ main()
 - Requires pressing Enter after each key press
 - Still fully functional, just slightly less responsive
 
-## Color Scheme
+## Colour Scheme
 
-The game features colorized output for enhanced visual experience:
+The game features colourised output for enhanced visual experience:
 
 - **🟢 Green**: Correct answers, winner announcements
 - **🔴 Red**: Incorrect answers, error messages, invalid input
