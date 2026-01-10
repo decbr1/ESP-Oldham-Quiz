@@ -6,6 +6,7 @@ A terminal-based quiz game about Oldham Athletic Football Club, featuring both s
 
 - **Single Player Mode**: Test your knowledge of Oldham Athletic on your own
 - **Multiplayer Mode (2-3 players)**: Compete with friends using buzzer keys
+- **Colorized Output**: Enhanced visual experience with color-coded feedback
 - **Cross-Platform Support**: Works on Windows, macOS, and Linux
 - **20 Questions**: Comprehensive trivia about Oldham Athletic FC
 - **Real-time Buzzer System**: Fast-paced competitive gameplay in multiplayer mode
@@ -38,8 +39,8 @@ You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will 
 
 **On Startup**: The program displays a GPL copyright notice. You can:
 - Press **Enter** to continue to the game
-- Type **`show w`** to see warranty details
-- Type **`show c`** to see redistribution conditions
+- Type **`w`** to see warranty details
+- Type **`c`** to see redistribution conditions
 
 ### Game Modes
 
@@ -81,6 +82,7 @@ ESP-Oldham-Quiz/
 
 The project uses object-oriented programming with the following key classes:
 
+- **`Colors`**: ANSI color codes utility class for colorized terminal output
 - **`Player`**: Represents a quiz player with name, key, and score
 - **`Question`**: Represents a quiz question with options and answer
 - **`BuzzerInput`**: Handles cross-platform keyboard input
@@ -98,6 +100,7 @@ QuizGame (ABC)
 Player (data class)
 Question (data class)
 BuzzerInput (utility class)
+Colors (utility class)
 ```
 
 ## Game Flow
@@ -122,6 +125,7 @@ main()
 - Consistent spacing and indentation
 - Line lengths kept reasonable
 - Clear, descriptive variable names
+- ANSI color codes encapsulated in dedicated `Colors` utility class
 
 ## Platform Notes
 
@@ -139,16 +143,30 @@ main()
 - Requires pressing Enter after each key press
 - Still fully functional, just slightly less responsive
 
+## Color Scheme
+
+The game features colorized output for enhanced visual experience:
+
+- **🟢 Green**: Correct answers, winner announcements
+- **🔴 Red**: Incorrect answers, error messages, invalid input
+- **🟡 Yellow**: Question options (A, B, C), buzzer keys
+- **🔵 Cyan**: Question text, player names, rankings
+- **🟣 Magenta**: Major section headers (BUZZ IN, FINAL RESULTS)
+- **🔷 Blue**: Subsection headers (BUZZER KEYS, CURRENT SCORES)
+- **Bold**: Emphasis on scores, titles, and important information
+
+Colors work on all modern terminals using ANSI escape codes (no external dependencies required).
+
 ## Example Session
 
 ```
 === OLDHAM QUIZ ===
-Copyright (C) 2026  Declan Brown
-This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'.
+Copyright (C) 2026 DecBr1
+This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.
 This is free software, and you are welcome to redistribute it
-under certain conditions; type 'show c' for details.
+under certain conditions; type 'c' for details.
 
-Press Enter to continue, or type 'show w' or 'show c': 
+Press Enter to continue, or type 'w' or 'c': 
 
 How many players? (1-3): 2
 
@@ -199,8 +217,7 @@ Questions in `questions.json` follow this structure:
 
 ## License
 
-®®ßåÅ‰ÍÎ
-GNU General Public Licence v3 <br>
+GNU General Public License v3  
 See [LICENSE](LICENSE) file for details.
 
 ---

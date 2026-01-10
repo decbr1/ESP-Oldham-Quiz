@@ -11,6 +11,39 @@ import os
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
 
+
+class Colors:
+    """ANSI color codes for terminal output."""
+    # Basic colors
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+
+    # Styles
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    # Reset
+    RESET = '\033[0m'
+
+    @staticmethod
+    def disable():
+        """Disable colors (for non-ANSI terminals)."""
+        Colors.RED = ''
+        Colors.GREEN = ''
+        Colors.YELLOW = ''
+        Colors.BLUE = ''
+        Colors.MAGENTA = ''
+        Colors.CYAN = ''
+        Colors.WHITE = ''
+        Colors.BOLD = ''
+        Colors.UNDERLINE = ''
+        Colors.RESET = ''
+
 # Platform-specific key press detection
 if sys.platform.startswith('win'):
     import msvcrt
@@ -59,9 +92,9 @@ class Question:
 
     def display(self):
         """Display the question and its options."""
-        print(f"\nQuestion {self.index}: {self.text}")
+        print(f"\n{Colors.CYAN}{Colors.BOLD}Question {self.index}:{Colors.RESET} {Colors.WHITE}{self.text}{Colors.RESET}")
         for option in self.options:
-            print(f"  {option}")
+            print(f"  {Colors.YELLOW}{option}{Colors.RESET}")
 
 
 class BuzzerInput:
@@ -116,7 +149,7 @@ class BuzzerInput:
             key = input("").upper().strip()
             if key in self.VALID_KEYS:
                 return key
-            print(f"Invalid key! Please enter {', '.join(self.VALID_KEYS)}.")
+            print(f"{Colors.RED}Invalid key! Please enter {', '.join(self.VALID_KEYS)}.{Colors.RESET}")
 
     @staticmethod
     def get_valid_answer() -> str:
@@ -131,7 +164,7 @@ class BuzzerInput:
             if user_answer in ('A', 'B', 'C'):
                 return user_answer
             else:
-                print("Invalid input! Please enter A, B, or C.")
+                print(f"{Colors.RED}Invalid input! Please enter A, B, or C.{Colors.RESET}")
 
 
 class QuizGame(ABC):
@@ -171,7 +204,7 @@ class QuizGame(ABC):
     def display_final_results(self):
         """Display final game results."""
         print("\n" + "=" * 50)
-        print("FINAL RESULTS")
+        print(f"{Colors.BOLD}{Colors.MAGENTA}FINAL RESULTS{Colors.RESET}")
         print("=" * 50)
 
         sorted_players = sorted(
@@ -182,8 +215,8 @@ class QuizGame(ABC):
 
         for rank, player in enumerate(sorted_players, 1):
             percentage = (player.score / len(self.questions)) * 100
-            print(f"{rank}. {player.name}: {player.score}/"
-                  f"{len(self.questions)} ({percentage:.1f}%)")
+            print(f"{Colors.CYAN}{rank}. {player.name}:{Colors.RESET} {Colors.BOLD}{player.score}/"
+                  f"{len(self.questions)}{Colors.RESET} ({percentage:.1f}%)")
 
         self._display_winner(sorted_players)
         print("=" * 50)
@@ -221,10 +254,10 @@ class SinglePlayerGame(QuizGame):
 
         if user_answer == question.answer:
             player.add_point()
-            print(f"Correct! +1 point. Score: {player.score}/{question_num + 1}")
+            print(f"{Colors.GREEN}Correct! +1 point.{Colors.RESET} Score: {Colors.BOLD}{player.score}/{question_num + 1}{Colors.RESET}")
         else:
-            print(f"Incorrect. The correct answer was {question.answer}. "
-                  f"Score: {player.score}/{question_num + 1}")
+            print(f"{Colors.RED}Incorrect.{Colors.RESET} The correct answer was {Colors.BOLD}{question.answer}{Colors.RESET}. "
+                  f"Score: {Colors.BOLD}{player.score}/{question_num + 1}{Colors.RESET}")
 
         return True
 
@@ -258,9 +291,9 @@ class MultiPlayerGame(QuizGame):
     def _display_buzzer_info(self):
         """Display buzzer key assignments and setup info."""
         print("\n" + "=" * 50)
-        print("BUZZER KEYS:")
+        print(f"{Colors.BOLD}{Colors.BLUE}BUZZER KEYS:{Colors.RESET}")
         for player in self.players.values():
-            print(f"  {player.key} - {player.name}")
+            print(f"  {Colors.YELLOW}{player.key}{Colors.RESET} - {Colors.CYAN}{player.name}{Colors.RESET}")
         print("=" * 50 + "\n")
 
         if not self.buzzer.is_tty:
@@ -277,14 +310,14 @@ class MultiPlayerGame(QuizGame):
         first_buzzer = None
 
         while attempts < self.MAX_ATTEMPTS:
-            print("\nBUZZ IN WITH YOUR KEY")
+            print(f"\n{Colors.BOLD}{Colors.MAGENTA}BUZZ IN WITH YOUR KEY{Colors.RESET}")
             buzzer_key = self.buzzer.wait_for_buzz()
 
             if not self._is_valid_buzz(buzzer_key, first_buzzer, attempts):
                 continue
 
             player = self.players[buzzer_key]
-            print(f"{player.name} buzzed in.")
+            print(f"{Colors.CYAN}{player.name}{Colors.RESET} buzzed in.")
 
             if attempts == 0:
                 first_buzzer = buzzer_key
@@ -295,15 +328,15 @@ class MultiPlayerGame(QuizGame):
             if user_answer == question.answer:
                 player.add_point()
                 if attempts == 1:
-                    print(f"Correct. +1 point to {player.name}")
+                    print(f"{Colors.GREEN}Correct. +1 point to {player.name}{Colors.RESET}")
                 else:
-                    print(f"Correct! Steal successful. +1 point to {player.name}")
+                    print(f"{Colors.GREEN}Correct! Steal successful. +1 point to {player.name}{Colors.RESET}")
                 break
             else:
                 if attempts == 1:
-                    print("Incorrect. Steal opportunity available.")
+                    print(f"{Colors.RED}Incorrect.{Colors.RESET} Steal opportunity available.")
                 else:
-                    print(f"Incorrect. The correct answer was {question.answer}")
+                    print(f"{Colors.RED}Incorrect.{Colors.RESET} The correct answer was {Colors.BOLD}{question.answer}{Colors.RESET}")
                     print("Question skipped.")
                     break
 
@@ -328,12 +361,12 @@ class MultiPlayerGame(QuizGame):
             True if the buzz is valid, False otherwise
         """
         if buzzer_key not in self.players:
-            print(f"\nKey {buzzer_key} is not assigned to a player.")
+            print(f"\n{Colors.RED}Key {buzzer_key} is not assigned to a player.{Colors.RESET}")
             return False
 
         if attempts == 1 and buzzer_key == first_buzzer:
-            print(f"{self.players[buzzer_key].name} already attempted "
-                  f"this question.")
+            print(f"{Colors.RED}{self.players[buzzer_key].name} already attempted "
+                  f"this question.{Colors.RESET}")
             return False
 
         return True
@@ -341,16 +374,16 @@ class MultiPlayerGame(QuizGame):
     def _display_current_scores(self):
         """Display current scores for all players."""
         print("\n" + "-" * 50)
-        print("CURRENT SCORES:")
+        print(f"{Colors.BOLD}{Colors.BLUE}CURRENT SCORES:{Colors.RESET}")
         for player in sorted(self.players.values(), key=lambda p: p.key):
-            print(f"  {player.name}: {player.score}")
+            print(f"  {Colors.CYAN}{player.name}:{Colors.RESET} {Colors.BOLD}{player.score}{Colors.RESET}")
         print("-" * 50)
 
     def _display_winner(self, sorted_players: List[Player]):
         """Display the game winner."""
         if sorted_players:
             winner = sorted_players[0]
-            print(f"\nWinner: {winner.name} with {winner.score} points!")
+            print(f"\n{Colors.GREEN}{Colors.BOLD}Winner: {winner.name} with {winner.score} points!{Colors.RESET}")
 
 
 def load_questions(filepath: str) -> List[Question]:
@@ -404,8 +437,8 @@ def main():
     """Main entry point for the quiz game."""
     questions = load_questions('questions.json')
 
-    print("\n=== OLDHAM QUIZ ===")
-    print("Copyright (C) 2026 DecBr1")
+    print(f"\n{Colors.BOLD}{Colors.CYAN}=== OLDHAM QUIZ ==={Colors.RESET}")
+    print(f"{Colors.WHITE}Copyright (C) 2026 DecBr1{Colors.RESET}")
     print("This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.")
     print("This is free software, and you are welcome to redistribute it under certain conditions; for details type 'c'.\n")
     response = input("Press Enter to continue, or type 'w' or 'c': ").strip().lower()
@@ -422,9 +455,9 @@ def main():
         try:
             num_players = int(input("How many players? (1-3): "))
             if num_players < 1 or num_players > 3:
-                print("Please enter a number between 1 and 3.")
+                print(f"{Colors.RED}Please enter a number between 1 and 3.{Colors.RESET}")
         except ValueError:
-            print("Please enter a valid number.")
+            print(f"{Colors.RED}Please enter a valid number.{Colors.RESET}")
 
     print()  # Add blank line for spacing
 
