@@ -6,7 +6,7 @@ A multi-player quiz game about Oldham Athletic Football Club.
 """
 
 from oldham_quiz import (
-    Colours,
+    Colours as C,
     HighScoreDatabase,
     SinglePlayerGame,
     MultiPlayerGame,
@@ -21,8 +21,8 @@ def main():
     questions = load_questions('questions.json')
     high_score_db = HighScoreDatabase()
 
-    print(f"\n{Colours.BOLD}{Colours.CYAN}=== OLDHAM QUIZ ==={Colours.RESET}")
-    print(f"{Colours.WHITE}Copyright (C) 2026 DecBr1{Colours.RESET}")
+    print(f"\n{C.BOLD}{C.CYAN}=== OLDHAM QUIZ ==={C.RESET}")
+    print(f"{C.WHITE}Copyright (C) 2026 DecBr1{C.RESET}")
     print("This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.")
     print("This is free software, and you are welcome to redistribute it under certain conditions; for details type 'c'.\n")
     response = input("Press Enter to continue, or type 'w' or 'c': ").strip().lower()
@@ -36,20 +36,20 @@ def main():
     # Main menu loop
     while True:
         print()
-        print(f"{Colours.BOLD}{Colours.CYAN}MAIN MENU{Colours.RESET}")
-        print(f"1. {Colours.GREEN}Start New Game{Colours.RESET}")
-        print(f"2. {Colours.YELLOW}View High Scores{Colours.RESET}")
-        print(f"3. {Colours.RED}Exit{Colours.RESET}")
+        print(f"{C.BOLD}{C.CYAN}MAIN MENU{C.RESET}")
+        print(f"1. {C.GREEN}Start New Game{C.RESET}")
+        print(f"2. {C.YELLOW}View High Scores{C.RESET}")
+        print(f"3. {C.RED}Exit{C.RESET}")
 
         choice = input("\nSelect option (1-3): ").strip()
 
         if choice == '2':
             # View high scores
             print()
-            print(f"1. {Colours.CYAN}All Scores{Colours.RESET}")
-            print(f"2. {Colours.CYAN}Single Player Only{Colours.RESET}")
-            print(f"3. {Colours.CYAN}Multiplayer Only{Colours.RESET}")
-            print(f"4. {Colours.CYAN}Back to Main Menu{Colours.RESET}")
+            print(f"1. {C.CYAN}All Scores{C.RESET}")
+            print(f"2. {C.CYAN}Single Player Only{C.RESET}")
+            print(f"3. {C.CYAN}Multiplayer Only{C.RESET}")
+            print(f"4. {C.CYAN}Back to Main Menu{C.RESET}")
 
             view_choice = input("\nSelect option (1-4): ").strip()
 
@@ -66,7 +66,7 @@ def main():
 
         elif choice == '3':
             # exit Game
-            print(f"\n{Colours.CYAN}Thanks for playing!{Colours.RESET}\n")
+            print(f"\n{C.CYAN}Thanks for playing!{C.RESET}\n")
             break
 
         elif choice == '1':
@@ -77,9 +77,9 @@ def main():
                 try:
                     num_players = int(input("How many players? (1-3): "))
                     if num_players < 1 or num_players > 3:
-                        print(f"{Colours.RED}Please enter a number between 1 and 3.{Colours.RESET}")
+                        print(f"{C.RED}Please enter a number between 1 and 3.{C.RESET}")
                 except ValueError:
-                    print(f"{Colours.RED}Please enter a valid number.{Colours.RESET}")
+                    print(f"{C.RED}Please enter a valid number.{C.RESET}")
 
             print()
 
@@ -92,12 +92,12 @@ def main():
 
             # high score after game over logic
             print()
-            view_scores = input(f"{Colours.YELLOW}View high scores? (y/n): {Colours.RESET}").strip().lower()
+            view_scores = input(f"{C.YELLOW}View high scores? (y/n): {C.RESET}").strip().lower()
             if view_scores == 'y':
                 high_score_db.display_leaderboard()
                 input("\nPress Enter to continue...")
         else:
-            print(f"{Colours.RED}Invalid option. Please select 1, 2, or 3.{Colours.RESET}")
+            print(f"{C.RED}Invalid option. Please select 1, 2, or 3.{C.RESET}")
 
 
 if __name__ == "__main__":
