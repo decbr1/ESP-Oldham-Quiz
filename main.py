@@ -8,8 +8,10 @@ multi-player modes with buzzer functionality for competitive play.
 import json
 import sys
 import os
+import sqlite3
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
+from datetime import datetime
 
 
 class Colors:
@@ -43,6 +45,139 @@ class Colors:
         Colors.BOLD = ''
         Colors.UNDERLINE = ''
         Colors.RESET = ''
+
+
+class HighScoreDatabase:
+    """Manages high scores using SQLite database."""
+
+    def __init__(self, db_path: str = 'high_scores.db'):
+        """
+        Initialize the high score database.
+
+        Args:
+            db_path: Path to the SQLite database file
+        """
+        self.db_path = db_path
+        self._init_database()
+
+    def _init_database(self):
+        """Create the high scores table if it doesn't exist."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS high_scores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                player_name TEXT NOT NULL,
+                score INTEGER NOT NULL,
+                total_questions INTEGER NOT NULL,
+                percentage REAL NOT NULL,
+                game_mode TEXT NOT NULL,
+                timestamp TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+
+    def add_score(self, player_name: str, score: int, total_questions: int,
+                  game_mode: str):
+        """
+        Add a new high score to the database.
+
+        Args:
+            player_name: Name of the player
+            score: Number of correct answers
+            total_questions: Total number of questions
+            game_mode: 'single' or 'multiplayer'
+        """
+        percentage = (score / total_questions) * 100 if total_questions > 0 else 0
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO high_scores (player_name, score, total_questions, percentage, game_mode, timestamp)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (player_name, score, total_questions, percentage, game_mode, timestamp))
+        conn.commit()
+        conn.close()
+
+    def get_top_scores(self, limit: int = 10, game_mode: Optional[str] = None) -> List[Dict]:
+        """
+        Get the top high scores.
+
+        Args:
+            limit: Maximum number of scores to return
+            game_mode: Filter by game mode ('single', 'multiplayer', or None for all)
+
+        Returns:
+            List of score dictionaries
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        if game_mode:
+            cursor.execute('''
+                SELECT player_name, score, total_questions, percentage, game_mode, timestamp
+                FROM high_scores
+                WHERE game_mode = ?
+                ORDER BY percentage DESC, score DESC, timestamp ASC
+                LIMIT ?
+            ''', (game_mode, limit))
+        else:
+            cursor.execute('''
+                SELECT player_name, score, total_questions, percentage, game_mode, timestamp
+                FROM high_scores
+                ORDER BY percentage DESC, score DESC, timestamp ASC
+                LIMIT ?
+            ''', (limit,))
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        return [
+            {
+                'player_name': row[0],
+                'score': row[1],
+                'total_questions': row[2],
+                'percentage': row[3],
+                'game_mode': row[4],
+                'timestamp': row[5]
+            }
+            for row in rows
+        ]
+
+    def display_leaderboard(self, limit: int = 10, game_mode: Optional[str] = None):
+        """
+        Display the high scores leaderboard.
+
+        Args:
+            limit: Maximum number of scores to display
+            game_mode: Filter by game mode
+        """
+        scores = self.get_top_scores(limit, game_mode)
+
+        if not scores:
+            print(f"\n{Colors.YELLOW}No high scores yet. Be the first!{Colors.RESET}\n")
+            return
+
+        mode_text = f" ({game_mode.upper()})" if game_mode else " (ALL MODES)"
+        print("\n" + "=" * 70)
+        print(f"{Colors.BOLD}{Colors.MAGENTA}HIGH SCORES LEADERBOARD{mode_text}{Colors.RESET}")
+        print("=" * 70)
+
+        for rank, score_data in enumerate(scores, 1):
+            mode_badge = "[S]" if score_data['game_mode'] == 'single' else "[M]"
+            timestamp = score_data['timestamp'].split()[0]  # Just the date
+
+            print(f"{Colors.CYAN}{rank:2d}. {score_data['player_name']:<20}{Colors.RESET} "
+                  f"{Colors.BOLD}{score_data['score']:2d}/{score_data['total_questions']:2d}{Colors.RESET} "
+                  f"({score_data['percentage']:5.1f}%)  "
+                  f"{Colors.YELLOW}{mode_badge}{Colors.RESET}  "
+                  f"{Colors.WHITE}{timestamp}{Colors.RESET}")
+
+        print("=" * 70)
+        print(f"{Colors.WHITE}Legend: [S] = Single Player, [M] = Multiplayer{Colors.RESET}\n")
+
 
 # Platform-specific key press detection
 if sys.platform.startswith('win'):
@@ -170,17 +305,20 @@ class BuzzerInput:
 class QuizGame(ABC):
     """Abstract base class for quiz game modes."""
 
-    def __init__(self, questions: List[Question], num_players: int):
+    def __init__(self, questions: List[Question], num_players: int,
+                 high_score_db: HighScoreDatabase):
         """
         Initialize the quiz game.
 
         Args:
             questions: List of Question objects
             num_players: Number of players in the game
+            high_score_db: High score database instance
         """
         self.questions = questions
         self.num_players = num_players
         self.players: Dict[str, Player] = {}
+        self.high_score_db = high_score_db
 
     @abstractmethod
     def setup_players(self):
@@ -213,6 +351,16 @@ class QuizGame(ABC):
             reverse=True
         )
 
+        # Save scores to database
+        game_mode = self.get_game_mode()
+        for player in sorted_players:
+            self.high_score_db.add_score(
+                player.name,
+                player.score,
+                len(self.questions),
+                game_mode
+            )
+
         for rank, player in enumerate(sorted_players, 1):
             percentage = (player.score / len(self.questions)) * 100
             print(f"{Colors.CYAN}{rank}. {player.name}:{Colors.RESET} {Colors.BOLD}{player.score}/"
@@ -220,6 +368,11 @@ class QuizGame(ABC):
 
         self._display_winner(sorted_players)
         print("=" * 50)
+
+    @abstractmethod
+    def get_game_mode(self) -> str:
+        """Return the game mode identifier ('single' or 'multiplayer')."""
+        pass
 
     @abstractmethod
     def _display_winner(self, sorted_players: List[Player]):
@@ -265,6 +418,10 @@ class SinglePlayerGame(QuizGame):
         """Display single player results."""
         pass  # No winner announcement in single player
 
+    def get_game_mode(self) -> str:
+        """Return the game mode identifier."""
+        return 'single'
+
 
 class MultiPlayerGame(QuizGame):
     """Multi-player quiz game mode with buzzer support."""
@@ -272,9 +429,10 @@ class MultiPlayerGame(QuizGame):
     MAX_ATTEMPTS = 2
     BUZZER_KEYS = ('Q', 'P', 'B')
 
-    def __init__(self, questions: List[Question], num_players: int):
+    def __init__(self, questions: List[Question], num_players: int,
+                 high_score_db: HighScoreDatabase):
         """Initialize multiplayer game."""
-        super().__init__(questions, num_players)
+        super().__init__(questions, num_players, high_score_db)
         self.buzzer = BuzzerInput()
 
     def setup_players(self):
@@ -385,6 +543,10 @@ class MultiPlayerGame(QuizGame):
             winner = sorted_players[0]
             print(f"\n{Colors.GREEN}{Colors.BOLD}Winner: {winner.name} with {winner.score} points!{Colors.RESET}")
 
+    def get_game_mode(self) -> str:
+        """Return the game mode identifier."""
+        return 'multiplayer'
+
 
 def load_questions(filepath: str) -> List[Question]:
     """
@@ -436,6 +598,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 def main():
     """Main entry point for the quiz game."""
     questions = load_questions('questions.json')
+    high_score_db = HighScoreDatabase()
 
     print(f"\n{Colors.BOLD}{Colors.CYAN}=== OLDHAM QUIZ ==={Colors.RESET}")
     print(f"{Colors.WHITE}Copyright (C) 2026 DecBr1{Colors.RESET}")
@@ -449,24 +612,71 @@ def main():
         show_conditions()
         input("\nPress Enter to continue...")
 
-    print()
-    num_players = 0
-    while num_players < 1 or num_players > 3:
-        try:
-            num_players = int(input("How many players? (1-3): "))
-            if num_players < 1 or num_players > 3:
-                print(f"{Colors.RED}Please enter a number between 1 and 3.{Colors.RESET}")
-        except ValueError:
-            print(f"{Colors.RED}Please enter a valid number.{Colors.RESET}")
+    # Main menu loop
+    while True:
+        print()
+        print(f"{Colors.BOLD}{Colors.CYAN}MAIN MENU{Colors.RESET}")
+        print(f"1. {Colors.GREEN}Start New Game{Colors.RESET}")
+        print(f"2. {Colors.YELLOW}View High Scores{Colors.RESET}")
+        print(f"3. {Colors.RED}Exit{Colors.RESET}")
 
-    print()  # Add blank line for spacing
+        choice = input("\nSelect option (1-3): ").strip()
 
-    if num_players == 1:
-        game = SinglePlayerGame(questions, num_players)
-    else:
-        game = MultiPlayerGame(questions, num_players)
+        if choice == '2':
+            # View high scores
+            print()
+            print(f"1. {Colors.CYAN}All Scores{Colors.RESET}")
+            print(f"2. {Colors.CYAN}Single Player Only{Colors.RESET}")
+            print(f"3. {Colors.CYAN}Multiplayer Only{Colors.RESET}")
+            print(f"4. {Colors.CYAN}Back to Main Menu{Colors.RESET}")
 
-    game.run()
+            view_choice = input("\nSelect option (1-4): ").strip()
+
+            if view_choice == '1':
+                high_score_db.display_leaderboard()
+                input("Press Enter to continue...")
+            elif view_choice == '2':
+                high_score_db.display_leaderboard(game_mode='single')
+                input("Press Enter to continue...")
+            elif view_choice == '3':
+                high_score_db.display_leaderboard(game_mode='multiplayer')
+                input("Press Enter to continue...")
+            continue
+
+        elif choice == '3':
+            print(f"\n{Colors.CYAN}Thanks for playing! Goodbye!{Colors.RESET}\n")
+            break
+
+        elif choice == '1':
+            # Start game
+            print()
+            num_players = 0
+            while num_players < 1 or num_players > 3:
+                try:
+                    num_players = int(input("How many players? (1-3): "))
+                    if num_players < 1 or num_players > 3:
+                        print(f"{Colors.RED}Please enter a number between 1 and 3.{Colors.RESET}")
+                except ValueError:
+                    print(f"{Colors.RED}Please enter a valid number.{Colors.RESET}")
+
+            print()  # Add blank line for spacing
+
+            if num_players == 1:
+                game = SinglePlayerGame(questions, num_players, high_score_db)
+            else:
+                game = MultiPlayerGame(questions, num_players, high_score_db)
+
+            game.run()
+
+            # Ask if they want to see high scores after game
+            print()
+            view_scores = input(f"{Colors.YELLOW}View high scores? (y/n): {Colors.RESET}").strip().lower()
+            if view_scores == 'y':
+                high_score_db.display_leaderboard()
+                input("\nPress Enter to continue...")
+        else:
+            print(f"{Colors.RED}Invalid option. Please select 1, 2, or 3.{Colors.RESET}")
+
 
 
 if __name__ == "__main__":
