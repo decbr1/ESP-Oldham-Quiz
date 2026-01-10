@@ -6,16 +6,20 @@ A terminal-based quiz game about Oldham Athletic Football Club, featuring both s
 
 - **Single Player Mode**: Test your knowledge of Oldham Athletic on your own
 - **Multiplayer Mode (2-3 players)**: Compete with friends using buzzer keys
+- **High Score Database**: Automatic score saving and leaderboard tracking
 - **Colorized Output**: Enhanced visual experience with color-coded feedback
 - **Cross-Platform Support**: Works on Windows, macOS, and Linux
 - **20 Questions**: Comprehensive trivia about Oldham Athletic FC
 - **Real-time Buzzer System**: Fast-paced competitive gameplay in multiplayer mode
-- **Score Tracking**: See your progress and final results
+- **Score Tracking**: See your progress and final results with persistent leaderboards
 
 ## Requirements
 
 - Python 3.7 or higher
 - No external dependencies required (uses standard library only)
+  - `sqlite3` for database
+  - `json` for question loading
+  - Platform-specific modules for keyboard input (`msvcrt`, `termios`, `tty`)
 
 ## Installation
 
@@ -44,11 +48,18 @@ You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will 
 
 ### Game Modes
 
+After startup, you'll see the main menu with the following options:
+
+1. **Start New Game** - Begin a quiz session
+2. **View High Scores** - Browse the leaderboard (All, Single Player, or Multiplayer)
+3. **Exit** - Quit the game
+
 #### Single Player
 1. Select `1` when prompted for number of players
 2. Enter your name
 3. Answer each question by typing A, B, or C
 4. See your final score at the end
+5. Your score is automatically saved to the high scores database
 
 #### Multiplayer (2-3 Players)
 1. Select `2` or `3` when prompted for number of players
@@ -60,6 +71,7 @@ You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will 
 4. Type your answer (A, B, or C)
 5. If wrong, another player can steal the point
 6. Winner is announced at the end
+7. All scores are automatically saved to the high scores database
 
 ### Gameplay Rules (Multiplayer)
 
@@ -74,6 +86,7 @@ You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will 
 ESP-Oldham-Quiz/
 ├── main.py              # Main game logic and classes
 ├── questions.json       # Quiz questions database
+├── high_scores.db       # SQLite database for high scores (auto-created)
 ├── README.md            # This file!
 └── LICENSE              # License information
 ```
@@ -83,6 +96,7 @@ ESP-Oldham-Quiz/
 The project uses object-oriented programming with the following key classes:
 
 - **`Colors`**: ANSI color codes utility class for colorized terminal output
+- **`HighScoreDatabase`**: SQLite database manager for persistent high score storage
 - **`Player`**: Represents a quiz player with name, key, and score
 - **`Question`**: Represents a quiz question with options and answer
 - **`BuzzerInput`**: Handles cross-platform keyboard input
@@ -101,6 +115,7 @@ Player (data class)
 Question (data class)
 BuzzerInput (utility class)
 Colors (utility class)
+HighScoreDatabase (utility class)
 ```
 
 ## Game Flow
@@ -108,14 +123,24 @@ Colors (utility class)
 ```
 main()
   → Load questions into Question objects
-  → Determine number of players
-  → Create SinglePlayerGame or MultiPlayerGame
-  → game.run()
-      → game.setup_players()
-      → For each question:
-          → question.display()
-          → game.play_question()
-      → game.display_final_results()
+  → Initialize HighScoreDatabase
+  → Display copyright notice
+  → Main Menu Loop:
+      → Option 1: Start New Game
+          → Determine number of players
+          → Create SinglePlayerGame or MultiPlayerGame
+          → game.run()
+              → game.setup_players()
+              → For each question:
+                  → question.display()
+                  → game.play_question()
+              → game.display_final_results()
+                  → Save all player scores to database
+          → Prompt to view high scores
+      → Option 2: View High Scores
+          → Choose filter (All/Single/Multiplayer)
+          → Display leaderboard from database
+      → Option 3: Exit
 ```
 
 ## **PEP8 Compliance**
@@ -157,6 +182,37 @@ The game features colorized output for enhanced visual experience:
 
 Colors work on all modern terminals using ANSI escape codes (no external dependencies required).
 
+## High Scores & Leaderboard
+
+The game automatically tracks all player scores in a SQLite database (`high_scores.db`).
+
+### Features:
+- **Automatic Saving**: All scores are saved automatically after each game
+- **Persistent Storage**: Scores are stored permanently in SQLite database
+- **Multiple Leaderboards**: View combined scores or filter by game mode
+- **Top 10 Rankings**: See the best performances with percentage scores
+- **Timestamp Tracking**: Each score includes the date it was achieved
+- **Mode Indicators**: [S] for Single Player, [M] for Multiplayer
+
+### Viewing High Scores:
+From the main menu, select option `2` to view:
+1. **All Scores** - Combined leaderboard of all game modes
+2. **Single Player Only** - Top single player performances
+3. **Multiplayer Only** - Top multiplayer winners
+
+After completing a game, you'll be prompted to view the leaderboard immediately.
+
+### Database Schema:
+The SQLite database stores:
+- Player name
+- Score (correct answers)
+- Total questions
+- Percentage score
+- Game mode (single/multiplayer)
+- Timestamp (date and time)
+
+Scores are ranked by percentage, then by total score, then by date (earliest first).
+
 ## Example Session
 
 ```
@@ -167,6 +223,13 @@ This is free software, and you are welcome to redistribute it
 under certain conditions; type 'c' for details.
 
 Press Enter to continue, or type 'w' or 'c': 
+
+MAIN MENU
+1. Start New Game
+2. View High Scores
+3. Exit
+
+Select option (1-3): 1
 
 How many players? (1-3): 2
 
@@ -196,6 +259,30 @@ CURRENT SCORES:
 --------------------------------------------------
 
 Press Enter for next question...
+
+...
+
+==================================================
+FINAL RESULTS
+==================================================
+1. Alice: 15/20 (75.0%)
+2. Bob: 12/20 (60.0%)
+
+Winner: Alice with 15 points!
+==================================================
+
+View high scores? (y/n): y
+
+======================================================================
+HIGH SCORES LEADERBOARD (ALL MODES)
+======================================================================
+ 1. Charlie              20/20 (100.0%)  [S]  2026-01-10
+ 2. Alice                15/20 ( 75.0%)  [M]  2026-01-10
+ 3. Bob                  12/20 ( 60.0%)  [M]  2026-01-10
+======================================================================
+Legend: [S] = Single Player, [M] = Multiplayer
+
+Press Enter to continue...
 ```
 
 ## Question Format
