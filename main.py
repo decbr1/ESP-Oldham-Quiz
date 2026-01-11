@@ -4,7 +4,7 @@ Oldham Quiz - Main entry point.
 
 A multi-player quiz game about Oldham Athletic Football Club.
 """
-from oldham_quiz.colours import c, Colours
+from oldham_quiz.colours import c
 from oldham_quiz import (
     HighScoreDatabase,
     SinglePlayerGame,

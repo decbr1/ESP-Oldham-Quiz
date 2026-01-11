@@ -3,7 +3,7 @@
 import sys
 import os
 
-from .colours import Colours
+from .colours import c
 
 # Platform-specific key press detection
 if sys.platform.startswith('win'):
@@ -65,7 +65,7 @@ class BuzzerInput:
             key = input("").upper().strip()
             if key in self.VALID_KEYS:
                 return key
-            print(f"{Colours.RED}Invalid key! Please enter {', '.join(self.VALID_KEYS)}.{Colours.RESET}")
+            print(c(f"Invalid key! Please enter {', '.join(self.VALID_KEYS)}.").red)
 
     @staticmethod
     def get_valid_answer() -> str:
@@ -80,5 +80,5 @@ class BuzzerInput:
             if user_answer in ('A', 'B', 'C'):
                 return user_answer
             else:
-                print(f"{Colours.RED}Invalid input! Please enter A, B, or C.{Colours.RESET}")
+                print(c("Invalid input! Please enter A, B, or C.").red)
 

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
 
 from .colours import Colours
+from .colours import c
 from .models import Player, Question
 from .input_handler import BuzzerInput
 from .database import HighScoreDatabase
@@ -248,7 +249,7 @@ class MultiPlayerGame(QuizGame):
         """Display the game winner."""
         if sorted_players:
             winner = sorted_players[0]
-            print(f"\n{Colours.GREEN}{Colours.BOLD}Winner: {winner.name} with {winner.score} points!{Colours.RESET}")
+            print(f"\n{c(f'Winner: {winner.name} with {winner.score} points!').green.bold}")
 
     def get_game_mode(self) -> str:
         """Return the game mode identifier."""

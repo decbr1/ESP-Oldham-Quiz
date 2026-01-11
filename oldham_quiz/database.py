@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Dict, Optional
 
 from .colours import Colours
-
+from .colours import c
 
 class HighScoreDatabase:
     """Manages high scores using SQLite database."""
@@ -117,24 +117,24 @@ class HighScoreDatabase:
         scores = self.get_top_scores(limit, game_mode)
 
         if not scores:
-            print(f"\n{Colours.YELLOW}No high scores yet. Be the first!{Colours.RESET}\n")
+            print(f"\n{c('No high scores yet. Be the first!').yellow}\n")
             return
 
         mode_text = f" ({game_mode.upper()})" if game_mode else " (ALL MODES)"
         print("\n" + "=" * 70)
-        print(f"{Colours.BOLD}{Colours.MAGENTA}HIGH SCORES LEADERBOARD{mode_text}{Colours.RESET}")
+        print(c(f"HIGH SCORES LEADERBOARD{mode_text}").bold.magenta)
         print("=" * 70)
 
         for rank, score_data in enumerate(scores, 1):
             mode_badge = "[S]" if score_data['game_mode'] == 'single' else "[M]"
             timestamp = score_data['timestamp'].split()[0]  # Just the date
 
-            print(f"{Colours.CYAN}{rank:2d}. {score_data['player_name']:<20}{Colours.RESET} "
-                  f"{Colours.BOLD}{score_data['score']:2d}/{score_data['total_questions']:2d}{Colours.RESET} "
+            print(f"{c(f'{rank:2d}. {score_data['player_name']:<20}').cyan} "
+                  f"{c(f'{score_data['score']:2d}/{score_data['total_questions']:2d}').bold} "
                   f"({score_data['percentage']:5.1f}%)  "
-                  f"{Colours.YELLOW}{mode_badge}{Colours.RESET}  "
-                  f"{Colours.WHITE}{timestamp}{Colours.RESET}")
+                  f"{c(mode_badge).yellow}  "
+                  f"{c(timestamp).white}")
 
         print("=" * 70)
-        print(f"{Colours.WHITE}Legend: [S] = Single Player, [M] = Multiplayer{Colours.RESET}\n")
+        print(f"{c('Legend: [S] = Single Player, [M] = Multiplayer').white}\n")
 

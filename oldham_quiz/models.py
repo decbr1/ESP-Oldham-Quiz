@@ -1,7 +1,6 @@
 """Data models for players and questions."""
 
-from .colours import Colours
-
+from .colours import c
 
 class Player:
     """Represents a quiz player with name and score."""
@@ -43,7 +42,7 @@ class Question:
 
     def display(self):
         """Display the question and its options."""
-        print(f"\n{Colours.CYAN}{Colours.BOLD}Question {self.index}:{Colours.RESET} {Colours.WHITE}{self.text}{Colours.RESET}")
+        print(f"\n{c(f'Question {self.index}:').cyan.bold} {c(self.text).white}")
         for option in self.options:
-            print(f"  {Colours.YELLOW}{option}{Colours.RESET}")
+            print(f"  {c(option).yellow}")
 
