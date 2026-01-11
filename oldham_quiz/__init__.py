@@ -5,7 +5,7 @@ This package implements a quiz game that supports both single-player and
 multi-player modes with buzzer functionality for competitive play.
 """
 
-from .colours import Colours
+from .colours import Colours, ColouredStr
 from .database import HighScoreDatabase
 from .models import Player, Question
 from .input_handler import BuzzerInput
@@ -15,6 +15,7 @@ from .utils import load_questions, show_warranty, show_conditions
 __version__ = '1.0.0'
 __all__ = [
     'Colours',
+    'ColouredStr',
     'HighScoreDatabase',
     'Player',
     'Question',
@@ -26,4 +27,3 @@ __all__ = [
     'show_warranty',
     'show_conditions',
 ]
-

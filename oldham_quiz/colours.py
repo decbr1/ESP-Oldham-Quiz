@@ -32,16 +32,17 @@ class Colours:
 
 
 class ColouredStr(str):
-    def red(self): return ColouredStr(f'{Colours.RED}{self}{Colours.RESET}')
-    def green(self): return ColouredStr(f'{Colours.GREEN}{self}{Colours.RESET}')
-    def yellow(self): return ColouredStr(f'{Colours.YELLOW}{self}{Colours.RESET}')
-    def blue(self): return ColouredStr(f'{Colours.BLUE}{self}{Colours.RESET}')
-    def magenta(self): return ColouredStr(f'{Colours.MAGENTA}{self}{Colours.RESET}')
-    def cyan(self): return ColouredStr(f'{Colours.CYAN}{self}{Colours.RESET}')
-    def white(self): return ColouredStr(f'{Colours.WHITE}{self}{Colours.RESET}')
-    def bold(self): return ColouredStr(f'{Colours.BOLD}{self}{Colours.RESET}')
-    def underline(self): return ColouredStr(f'{Colours.UNDERLINE}{self}{Colours.RESET}')
+    def __getattr__(self, name):
+        color_methods = {
+            'red': Colours.RED, 'green': Colours.GREEN, 'yellow': Colours.YELLOW,
+            'blue': Colours.BLUE, 'magenta': Colours.MAGENTA, 'cyan': Colours.CYAN,
+            'white': Colours.WHITE, 'bold': Colours.BOLD, 'underline': Colours.UNDERLINE
+        }
+        if name in color_methods:
+            return ColouredStr(f'{color_methods[name]}{self}{Colours.RESET}')
+        raise AttributeError(f"'ColouredStr' object has no attribute '{name}'")
+
 def c(text): return ColouredStr(text)
 
-print(c("test").red().bold())
-print(c("success").green())
+# print(c("test").red.bold)
+# print(c("success").green)

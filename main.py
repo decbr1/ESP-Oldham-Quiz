@@ -4,9 +4,8 @@ Oldham Quiz - Main entry point.
 
 A multi-player quiz game about Oldham Athletic Football Club.
 """
-
+from oldham_quiz.colours import c, Colours
 from oldham_quiz import (
-    Colours as C,
     HighScoreDatabase,
     SinglePlayerGame,
     MultiPlayerGame,
@@ -21,8 +20,8 @@ def main():
     questions = load_questions('questions.json')
     high_score_db = HighScoreDatabase()
 
-    print(f"\n{C.BOLD}{C.CYAN}=== OLDHAM QUIZ ==={C.RESET}")
-    print(f"{C.WHITE}Copyright (C) 2026 DecBr1{C.RESET}")
+    print(c("\n=== OLDHAM QUIZ ===").bold.cyan)
+    print(c("Copyright (C) 2026 DecBr1").white)
     print("This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.")
     print("This is free software, and you are welcome to redistribute it under certain conditions; for details type 'c'.\n")
     response = input("Press Enter to continue, or type 'w' or 'c': ").strip().lower()
@@ -36,20 +35,20 @@ def main():
     # Main menu loop
     while True:
         print()
-        print(f"{C.BOLD}{C.CYAN}MAIN MENU{C.RESET}")
-        print(f"1. {C.GREEN}Start New Game{C.RESET}")
-        print(f"2. {C.YELLOW}View High Scores{C.RESET}")
-        print(f"3. {C.RED}Exit{C.RESET}")
+        print(c("MAIN MENU").bold.cyan)
+        print(c("1. Start New Game").green)
+        print(c("2. View High Scores").yellow)
+        print(c("3. Exit").red)
 
         choice = input("\nSelect option (1-3): ").strip()
 
         if choice == '2':
             # View high scores
             print()
-            print(f"1. {C.CYAN}All Scores{C.RESET}")
-            print(f"2. {C.CYAN}Single Player Only{C.RESET}")
-            print(f"3. {C.CYAN}Multiplayer Only{C.RESET}")
-            print(f"4. {C.CYAN}Back to Main Menu{C.RESET}")
+            print(c("1. All Scores").cyan)
+            print(c("2. Single Player Only").cyan)
+            print(c("3. Multiplayer Only").cyan)
+            print(c("4. Back to Main Menu").cyan)
 
             view_choice = input("\nSelect option (1-4): ").strip()
 
@@ -66,7 +65,7 @@ def main():
 
         elif choice == '3':
             # exit Game
-            print(f"\n{C.CYAN}Thanks for playing!{C.RESET}\n")
+            print(c("\nThanks for playing!\n").cyan)
             break
 
         elif choice == '1':
@@ -77,9 +76,9 @@ def main():
                 try:
                     num_players = int(input("How many players? (1-3): "))
                     if num_players < 1 or num_players > 3:
-                        print(f"{C.RED}Please enter a number between 1 and 3.{C.RESET}")
+                        print(c("Please enter a number between 1 and 3.").red)
                 except ValueError:
-                    print(f"{C.RED}Please enter a valid number.{C.RESET}")
+                    print(c("Please enter a valid number.").red)
 
             print()
 
@@ -92,14 +91,13 @@ def main():
 
             # high score after game over logic
             print()
-            view_scores = input(f"{C.YELLOW}View high scores? (y/n): {C.RESET}").strip().lower()
+            view_scores = input(c("View high scores? (y/n): ").yellow).strip().lower()
             if view_scores == 'y':
                 high_score_db.display_leaderboard()
                 input("\nPress Enter to continue...")
         else:
-            print(f"{C.RED}Invalid option. Please select 1, 2, or 3.{C.RESET}")
+            print(c("Invalid option. Please select 1, 2, or 3.").red)
 
 
 if __name__ == "__main__":
     main()
-
