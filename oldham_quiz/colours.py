@@ -31,43 +31,17 @@ class Colours:
     def print(self, msg): print(self.format(msg))
 
 
-class Style:
-    def __init__(self, text):
-        self.text = text
-        self.codes = []
+class ColouredStr(str):
+    def red(self): return ColouredStr(f'{Colours.RED}{self}{Colours.RESET}')
+    def green(self): return ColouredStr(f'{Colours.GREEN}{self}{Colours.RESET}')
+    def yellow(self): return ColouredStr(f'{Colours.YELLOW}{self}{Colours.RESET}')
+    def blue(self): return ColouredStr(f'{Colours.BLUE}{self}{Colours.RESET}')
+    def magenta(self): return ColouredStr(f'{Colours.MAGENTA}{self}{Colours.RESET}')
+    def cyan(self): return ColouredStr(f'{Colours.CYAN}{self}{Colours.RESET}')
+    def white(self): return ColouredStr(f'{Colours.WHITE}{self}{Colours.RESET}')
+    def bold(self): return ColouredStr(f'{Colours.BOLD}{self}{Colours.RESET}')
+    def underline(self): return ColouredStr(f'{Colours.UNDERLINE}{self}{Colours.RESET}')
+def c(text): return ColouredStr(text)
 
-    def red(self): self.codes.append(Colours.RED); return self
-    def green(self): self.codes.append(Colours.GREEN); return self
-    def yellow(self): self.codes.append(Colours.YELLOW); return self
-    def blue(self): self.codes.append(Colours.BLUE); return self
-    def magenta(self): self.codes.append(Colours.MAGENTA); return self
-    def cyan(self): self.codes.append(Colours.CYAN); return self
-    def white(self): self.codes.append(Colours.WHITE); return self
-    def bold(self): self.codes.append(Colours.BOLD); return self
-    def underline(self): self.codes.append(Colours.UNDERLINE); return self
-
-    def __str__(self): return f"{''.join(self.codes)}{self.text}{Colours.RESET}"
-
-def style(msg): return Style(msg)
-
-def _red(self): return Style(self).red()
-str.red = _red
-def _green(self): return Style(self).green()
-str.green = _green
-def _yellow(self): return Style(self).yellow()
-str.yellow = _yellow
-def _blue(self): return Style(self).blue()
-str.blue = _blue
-def _magenta(self): return Style(self).magenta()
-str.magenta = _magenta
-def _cyan(self): return Style(self).cyan()
-str.cyan = _cyan
-def _white(self): return Style(self).white()
-str.white = _white
-def _bold(self): return Style(self).bold()
-str.bold = _bold
-def _underline(self): return Style(self).underline()
-str.underline = _underline
-
-print("test".red().bold())
-print("success".green())
+print(c("test").red().bold())
+print(c("success").green())
