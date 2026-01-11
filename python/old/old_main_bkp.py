@@ -597,7 +597,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 def main():
     """Main entry point for the quiz game."""
-    questions = load_questions('../questions.json')
+    questions = load_questions('../../questions.json')
     high_score_db = HighScoreDatabase()
 
     print(f"\n{Colours.BOLD}{Colours.CYAN}=== OLDHAM QUIZ ==={Colours.RESET}")

@@ -4,7 +4,13 @@ Oldham Quiz - Main entry point.
 
 A multi-player quiz game about Oldham Athletic Football Club.
 """
-from oldham_quiz.colours import c
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
 from oldham_quiz import (
     HighScoreDatabase,
     SinglePlayerGame,
@@ -12,13 +18,26 @@ from oldham_quiz import (
     load_questions,
     show_warranty,
     show_conditions,
+    c,
 )
 
 
 def main():
     """Main entry point for the quiz game."""
-    questions = load_questions('questions.json')
-    high_score_db = HighScoreDatabase()
+    # Determine the project root directory
+    # python/src/main.py -> python/src -> python -> project_root
+    project_root = os.path.dirname(os.path.dirname(current_dir))
+
+    questions_path = os.path.join(project_root, 'questions.json')
+    db_path = os.path.join(project_root, 'high_scores.db')
+
+    if not os.path.exists(questions_path):
+        if os.path.exists('questions.json'):
+            questions_path = 'questions.json'
+            db_path = 'high_scores.db'
+
+    questions = load_questions(questions_path)
+    high_score_db = HighScoreDatabase(db_path)
 
     print(c("\n=== OLDHAM QUIZ ===").bold.cyan)
     print(c("Copyright (C) 2026 DecBr1").white)
