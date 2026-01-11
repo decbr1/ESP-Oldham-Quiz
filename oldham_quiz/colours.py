@@ -50,6 +50,24 @@ class Style:
 
 def style(msg): return Style(msg)
 
+def _red(self): return Style(self).red()
+str.red = _red
+def _green(self): return Style(self).green()
+str.green = _green
+def _yellow(self): return Style(self).yellow()
+str.yellow = _yellow
+def _blue(self): return Style(self).blue()
+str.blue = _blue
+def _magenta(self): return Style(self).magenta()
+str.magenta = _magenta
+def _cyan(self): return Style(self).cyan()
+str.cyan = _cyan
+def _white(self): return Style(self).white()
+str.white = _white
+def _bold(self): return Style(self).bold()
+str.bold = _bold
+def _underline(self): return Style(self).underline()
+str.underline = _underline
 
-print(style("test").red().bold())
-print(style("success").green())
+print("test".red().bold())
+print("success".green())
