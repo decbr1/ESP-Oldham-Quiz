@@ -59,7 +59,7 @@ Furthermore, the conversion maintains functional parity with the Python implemen
 
 ### Build the application:
 ```bash
-cd goland
+cd golang
 go build -o oldham-quiz ./cmd/main.go
 ```
 
