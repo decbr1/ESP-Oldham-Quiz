@@ -1,357 +1,282 @@
-# Oldham Quiz
+# ESP-Oldham-Quiz
 
-A terminal-based quiz game about Oldham Athletic, created as practice for DSD ESP Task 4a.<br>
-This project (and readme!) was written without use of any Generative AI.
+A terminal-based quiz game about Oldham Athletic Football Club, created as practice for DSD ESP Task 4a. This project features both **Python** and **Go** implementations with full feature parity.
+
+## Project Overview
+
+This repository contains a multi-language quiz application with:
+- **Python Implementation**: Original version written without generative AI (located in `python/src/`)
+- **Go Implementation**: Conversion written with AI assistance to practice Go (located in `golang/`)
+- **Shared Resources**: Both implementations use the same `questions.json` and `high_scores.db` files
 
 ## Features
 
-- **Single Player Mode**: Answer questions at the pleasure of nobody but yourself.
-- **Multiplayer Mode (2-3 players)**: Answer questions stressfully with friends and family.
-- **High Score Database**: High Scores saved to a database, just the like arcades.
-- **Colourized Output**: ANSI colours for the benefit of your eyes. And brain.
-- **20 Questions**: Modular questions.json file, add your own if you so choose!
-- **Real-time Buzzer System**: Buzz in quick without needing to hit enter!
-- **Cross-Platform Support**: Buzzer input works on macOS, Linux, and Windows.
+- **Single Player Mode**: Answer questions solo and try to beat your high score
+- **Multiplayer Mode**: Competitive gameplay with real-time buzzer system
+- **High Score Database**: Persistent SQLite database tracks all scores across both implementations
+- **Colourised Output**: ANSI colour-coded terminal UI for enhanced readability
+- **Modular Questions**: JSON-based question format
+- **Real-time Buzzer System**: Quick-response gameplay without needing to hit Enter
+- **Cross-Platform Support**: Everything, even buzzer input, works on Linux, macOS, and Windows
+- **GPL Licensed**: Free and open-source software
 
-## Requirements
-
-- Python 3.7 or higher
-- No external dependencies required (uses standard library only)
-  - `sqlite3` for database
-  - `json` for question loading
-  - Platform-specific modules for keyboard input (`msvcrt`, `termios`, `tty`)
-
-## Installation
-
-1. Clone or download this repository
-2. Ensure you have Python 3.7+ installed:
-   ```bash
-   python3 --version
-   ```
-
-## Usage
-
-### Running the Game
-
-For the best experience with real-time buzzer input, run from a terminal:
-
-```bash
-python3 main.py
-```
-
-You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will require pressing Enter after each key in multiplayer mode.
-
-**On Startup**: The program displays a GPL copyright notice. You can:
-- Press **Enter** to continue to the game
-- Type **`w`** to see warranty details
-- Type **`c`** to see redistribution conditions
-
-### Game Modes
-
-After startup, you'll see the main menu with the following options:
-
-1. **Start New Game** - Begin a quiz session
-2. **View High Scores** - Browse the leaderboard (All, Single Player, or Multiplayer)
-3. **Exit** - Quit the game
-
-#### Single Player
-1. Select `1` when prompted for number of players
-2. Enter your name
-3. Answer each question by typing A, B, or C
-4. See your final score at the end
-5. Your score is automatically saved to the high scores database
-
-#### Multiplayer (2-3 Players)
-1. Select `2` or `3` when prompted for number of players
-2. Each player enters their name and is assigned a buzzer key:
-   - Player 1: **Q**
-   - Player 2: **P**
-   - Player 3: **B**
-3. When a question appears, press your buzzer key to answer
-4. Type your answer (A, B, or C)
-5. If wrong, another player can steal the point
-6. Winner is announced at the end
-7. All scores are automatically saved to the high scores database
-
-### Gameplay Rules (Multiplayer)
-
-- **First to Buzz**: Press your buzzer key as fast as possible
-- **Two Attempts**: If the first player is wrong, one other player can steal
-- **Points**: 1 point for correct answers
-- **No Repeat Attempts**: Can't buzz in twice on the same question
-
-## Project Structure
+## Repository Structure
 
 ```
 ESP-Oldham-Quiz/
-├── oldham_quiz/            # Main package
-│   ├── __init__.py         # Package initialization and exports
-│   ├── colours.py           # ANSI colour codes utility
-│   ├── database.py         # High score database manager (SQLite)
-│   ├── models.py           # Player and Question data models
-│   ├── input_handler.py    # Buzzer and keyboard input handling
-│   ├── game_modes.py       # QuizGame, SinglePlayerGame, MultiPlayerGame
-│   └── utils.py            # Helper functions (load_questions, warranties)
-├── main.py                 # Entry point - game loop and menu
-├── questions.json          # Quiz questions database
-├── high_scores.db          # SQLite database for high scores (auto-created)
-├── README.md               # This file!
-└── LICENSE                 # License information
+├── README.md               # This file - project overview
+├── LICENSE                 # GNU GPL v3 License
+├── questions.json          # Quiz questions (shared by both implementations)
+├── high_scores.db          # SQLite database (auto-created, shared by both)
+│
+├── python/                 # Python Implementation
+│   ├── README.md           # Python-specific documentation
+│   ├── src/
+│   │   ├── main.py         # Entry point - game loop and menu
+│   │   └── oldham_quiz/    # Main package
+│   │       ├── __init__.py         # Package initialization
+│   │       ├── colours.py          # ANSI colour codes
+│   │       ├── database.py         # High score database manager
+│   │       ├── models.py           # Player and Question data models
+│   │       ├── input_handler.py    # Buzzer/keyboard input handling
+│   │       ├── game_modes.py       # Game mode implementations
+│   │       └── utils.py            # Helper functions
+│   └── old/                # Archived backup files
+│       ├── old_main_bkp.py
+│       ├── single_player_bkp.py
+│       └── test_highscores.py
+│
+└── golang/                 # Go Implementation
+    ├── README.md           # Go-specific documentation
+    ├── go.mod              # Go module definition
+    ├── go.sum              # Go dependency checksums
+    ├── cmd/
+    │   └── main.go         # Main entry point
+    └── internal/           # Internal packages
+        ├── colours/
+        │   └── colours.go      # ANSI color handling
+        ├── database/
+        │   └── database.go     # SQLite high score database
+        ├── game/
+        │   └── game.go         # Game modes implementation
+        ├── input/
+        │   └── input.go        # Input handling for buzzer
+        ├── models/
+        │   └── models.go       # Player and Question models
+        └── utils/
+            └── utils.go        # Utility functions
 ```
 
-## Code Architecture
+## Module Correspondence
 
-The project uses a **modular architecture** with object-oriented programming principles. Code is organized into separate modules for maintainability:
+Both implementations follow the same architecture with language-specific adaptations:
 
-### Modules:
+| Python Module | Go Package | Purpose |
+|---------------|------------|---------|
+| `main.py` | `cmd/main.go` | Entry point, main menu, game loop |
+| `colours.py` | `internal/colours/colours.go` | ANSI colour codes and terminal styling |
+| `models.py` | `internal/models/models.go` | Player and Question data structures |
+| `database.py` | `internal/database/database.go` | SQLite high score persistence |
+| `input_handler.py` | `internal/input/input.go` | Cross-platform keyboard input |
+| `game_modes.py` | `internal/game/game.go` | Single/multiplayer game logic |
+| `utils.py` | `internal/utils/utils.go` | Question loading, warranties, helpers |
 
-**`oldham_quiz/colours.py`**
-- **`Colours`**: ANSI colour codes utility class for colourised terminal output
+## Download and Run
 
-**`oldham_quiz/database.py`**
-- **`HighScoreDatabase`**: SQLite database manager for persistent high score storage
+### Python Version
 
-**`oldham_quiz/models.py`**
-- **`Player`**: Represents a quiz player with name, key, and score
-- **`Question`**: Represents a quiz question with options and answer
+**Requirements:**
+- Python 3.7 or higher
+- No external dependencies (uses standard library only)
 
-**`oldham_quiz/input_handler.py`**
-- **`BuzzerInput`**: Handles cross-platform keyboard input
-
-**`oldham_quiz/game_modes.py`**
-- **`QuizGame`**: Abstract base class for game modes
-  - **`SinglePlayerGame`**: Single-player implementation
-  - **`MultiPlayerGame`**: Multiplayer implementation with buzzer logic
-
-**`oldham_quiz/utils.py`**
-- **`load_questions()`**: Load questions from JSON file
-- **`show_warranty()`**: Display GPL warranty information
-- **`show_conditions()`**: Display GPL redistribution conditions
-
-**`main.py`**
-- Entry point with main menu loop and game initialization
-
-## Module Organization
-
-```
-oldham_quiz/
-├── colours.py
-│   └── Colours (utility class)
-├── database.py
-│   └── HighScoreDatabase (utility class)
-├── models.py
-│   ├── Player (data class)
-│   └── Question (data class)
-├── input_handler.py
-│   └── BuzzerInput (utility class)
-├── game_modes.py
-│   ├── QuizGame (ABC)
-│   ├── SinglePlayerGame (extends QuizGame)
-│   └── MultiPlayerGame (extends QuizGame)
-└── utils.py
-    ├── load_questions()
-    ├── show_warranty()
-    └── show_conditions()
+**Running:**
+```bash
+cd python/src
+python3 main.py
 ```
 
-### Class Hierarchy
+### Go Version
 
-```
-QuizGame (ABC)
-├── SinglePlayerGame
-└── MultiPlayerGame
-```
+**Requirements:**
+- Go 1.16 or higher
+- Dependencies: `github.com/mattn/go-sqlite3`
 
-## Game Flow
-
-```
-main()
-  -> Load questions into Question objects
-  -> Initialise HighScoreDatabase
-  -> Display copyright notice
-  -> Main Menu Loop:
-      -> Option 1: Start New Game
-          -> Determine number of players
-          -> Create SinglePlayerGame or MultiPlayerGame
-          -> game.run()
-              -> game.setup_players()
-              -> For each question:
-                  -> question.display()
-                  -> game.play_question()
-              -> game.display_final_results()
-                  -> Save all player scores to database
-          -> Prompt to view high scores
-      -> Option 2: View High Scores
-          -> Choose filter (All/Single/Multiplayer)
-          -> Display leaderboard from database
-      -> Option 3: Exit
+**Building and Running:**
+```bash
+cd golng
+go mod download          # Install dependencies
+go build -o oldham-quiz ./cmd/main.go
+./oldham-quiz
 ```
 
-## **Code Quality**
-- **Modular Architecture**: Code organised into separate, focused modules
-- **Single Responsibility Principle**: Each module has a clear, specific purpose
-- Proper docstrings for all classes and methods (Google style)
-- Type hints throughout (`List[Question]`, `Optional[str]`, etc.)
-- Constants in UPPER_CASE (`MAX_ATTEMPTS`, `VALID_KEYS`, `BUZZER_KEYS`)
-- Consistent spacing and indentation (PEP 8 compliant)
-- Line lengths kept reasonable
-- Clear, descriptive variable names
-- ANSI colour codes encapsulated in dedicated `Colours` utility class
-- Easy to extend and maintain
+**Or run directly:**
+```bash
+cd golang
+go run cmd/main.go
+```
 
-## Platform Notes
+## How to Play
 
-### macOS/Linux
-- Real-time buzzer input works in terminal
-- No Enter key needed when buzzing in (in terminal mode)
-- Uses `termios` and `tty` for raw keyboard input
+### Starting the Game
 
-### Windows
-- Real-time buzzer input works natively
-- Uses `msvcrt` for keyboard detection
+1. **Startup Screen**: Shows GPL copyright notice
+   - Press **Enter** to continue
+   - Type **`w`** for warranty details
+   - Type **`c`** for redistribution conditions
 
-### IDE Consoles
-- Fallback mode activates automatically
-- Requires pressing Enter after each key press
-- Still fully functional, just slightly less responsive
+2. **Main Menu**:
+   - `1` - Start New Game
+   - `2` - View High Scores
+   - `3` - Exit
 
-## Colour Scheme
+### Single Player Mode
 
-The game features colourised output for enhanced visual experience:
+1. Select `1` player when prompted
+2. Enter your name
+3. Answer each question by typing A, B, or C
+4. Your score is automatically saved to the database
 
-- **🟢 Green**: Correct answers, winner announcements
-- **🔴 Red**: Incorrect answers, error messages, invalid input
-- **🟡 Yellow**: Question options (A, B, C), buzzer keys
-- **🔵 Cyan**: Question text, player names, rankings
-- **🟣 Magenta**: Major section headers (BUZZ IN, FINAL RESULTS)
-- **🔷 Blue**: Subsection headers (BUZZER KEYS, CURRENT SCORES)
-- **Bold**: Emphasis on scores, titles, and important information
+### Multiplayer Mode (2-3 Players)
 
-Colours work on all modern terminals using ANSI escape codes (no external dependencies required).
+1. Select `2` or `3` players
+2. Each player enters their name and receives a buzzer key:
+   - **Player 1**: Q key
+   - **Player 2**: P key
+   - **Player 3**: B key
+3. Press your buzzer key first to answer
+4. Type your answer (A, B, or C)
+5. On incorrect answer, another player can steal the point
+6. Winner announced at the end with all scores saved
+
+### Gameplay Rules
+
+- **First to Buzz**: Fastest player gets first attempt
+- **One Steal Opportunity**: If wrong, one other player can attempt
+- **1 Point per Question**: Correct answers award 1 point
+- **No Repeat Attempts**: Can't buzz twice on same question
 
 ## High Scores & Leaderboard
 
-The game automatically tracks all player scores in a SQLite database (`high_scores.db`).
+Both implementations share the same SQLite database (`high_scores.db`):
 
-### Features:
-- **Automatic Saving**: All scores are saved automatically after each game
-- **Persistent Storage**: Scores are stored permanently in SQLite database
-- **Multiple Leaderboards**: View combined scores or filter by game mode
-- **Top 10 Rankings**: See the best performances with percentage scores
-- **Timestamp Tracking**: Each score includes the date it was achieved
-- **Mode Indicators**: [S] for Single Player, [M] for Multiplayer
+- **Automatic Saving**: All scores saved after each game
+- **Persistent Storage**: Scores survive restarts and work across both implementations
+- **Filtered Views**: View all scores, single-player only, or multiplayer only
+- **Top 10 Rankings**: Sorted by percentage, then score, then date
+- **Mode Indicators**: `[S]` for Single Player, `[M]` for Multiplayer
 
-### Viewing High Scores:
-From the main menu, select option `2` to view:
-1. **All Scores** - Combined leaderboard of all game modes
-2. **Single Player Only** - Top single player performances
-3. **Multiplayer Only** - Top multiplayer winners
+## Architecture & Design
 
-After completing a game, you'll be prompted to view the leaderboard immediately.
+### Code Architecture
 
-### Database Schema:
-The SQLite database stores:
-- Player name
-- Score (correct answers)
-- Total questions
-- Percentage score
-- Game mode (single/multiplayer)
-- Timestamp (date and time)
+Both implementations use modular, object-oriented design:
 
-Scores are ranked by percentage, then by total score, then by date (earliest first).
+**Python:**
+- Object-oriented with classes and inheritance
+- `QuizGame` abstract base class → `SinglePlayerGame`, `MultiPlayerGame`
+- Type hints throughout for clarity
+- PEP 8 compliant formatting
 
-## Example Session
+**Go:**
+- Struct-based with interface patterns
+- Go interfaces for polymorphism
+- Explicit error handling (no exceptions)
+- Internal packages for encapsulation
 
-```
-=== OLDHAM QUIZ ===
-Copyright (C) 2026 DecBr1
-This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.
-This is free software, and you are welcome to redistribute it
-under certain conditions; type 'c' for details.
+### Key Design Patterns
 
-Press Enter to continue, or type 'w' or 'c': 
+1. **Template Method Pattern**: Base game logic with specialized implementations
+2. **Single Responsibility**: Each module has one clear purpose
+3. **Separation of Concerns**: UI, logic, data, and input handled separately
+4. **Cross-Platform Compatibility**: Platform detection and fallback modes
 
-MAIN MENU
-1. Start New Game
-2. View High Scores
-3. Exit
+### Colour Scheme
 
-Select option (1-3): 1
+Both implementations use consistent ANSI colour coding:
 
-How many players? (1-3): 2
-
-Player 1 (Key: Q): Alice
-Player 2 (Key: P): Bob
-
-==================================================
-BUZZER KEYS:
-  Q - Alice
-  P - Bob
-==================================================
-
-Question 1: In which year was Oldham Athletic Football Club founded?
-  <A> 1895
-  <B> 1899
-  <C> 1907
-
-BUZZ IN WITH YOUR KEY
-Alice buzzed in.
-Answer >> A
-Correct. +1 point to Alice
-
---------------------------------------------------
-CURRENT SCORES:
-  Alice: 1
-  Bob: 0
---------------------------------------------------
-
-Press Enter for next question...
-
-...
-
-==================================================
-FINAL RESULTS
-==================================================
-1. Alice: 15/20 (75.0%)
-2. Bob: 12/20 (60.0%)
-
-Winner: Alice with 15 points!
-==================================================
-
-View high scores? (y/n): y
-
-======================================================================
-HIGH SCORES LEADERBOARD (ALL MODES)
-======================================================================
- 1. Charlie              20/20 (100.0%)  [S]  2026-01-10
- 2. Alice                15/20 ( 75.0%)  [M]  2026-01-10
- 3. Bob                  12/20 ( 60.0%)  [M]  2026-01-10
-======================================================================
-Legend: [S] = Single Player, [M] = Multiplayer
-
-Press Enter to continue...
-```
+- **🟢 Green**: Correct answers, winners
+- **🔴 Red**: Incorrect answers, errors
+- **🟡 Yellow**: Question options (A/B/C), buzzer keys
+- **🔷 Cyan**: Questions, player names, rankings
+- **🟣 Magenta**: Major section headers
+- **🔵 Blue**: Subsection headers
+- **Bold**: Emphasis on scores and titles
 
 ## Question Format
 
-Questions in `questions.json` follow this structure:
+Questions are stored in `questions.json` at the repository root:
 
 ```json
 {
     "question_index": 1,
-    "question": "Your question text here?",
+    "question": "In which year was Oldham Athletic Football Club founded?",
     "options": [
-        "<A> First option",
-        "<B> Second option",
-        "<C> Third option"
+        "<A> 1895",
+        "<B> 1899",
+        "<C> 1907"
     ],
     "answer": "A"
 }
 ```
 
+**Adding Questions:**
+1. Open `questions.json`
+2. Add a new object following the format above
+3. Increment `question_index`
+4. Both Python and Go versions will automatically use the new questions
+
+## Platform Support
+
+### Linux
+-  Real-time buzzer input in terminal
+-  Uses `termios`/`tty` (Python) and terminal modes (Go)
+-  Full colour support
+
+### macOS
+-  Real-time buzzer input in terminal
+-  Uses same Unix-based input as Linux
+-  Full colour support
+
+### Windows
+-  Real-time buzzer input works natively
+-  Uses `msvcrt` (Python) and Windows console API (Go)
+-  Full colour support on Windows 10+
+
+### IDE Consoles
+- Fallback mode (requires Enter after key press)
+- Still fully functional, slightly less responsive
+
+## Development Notes
+
+### Python Version
+- **No AI Used**: Original implementation written manually
+- **Standard Library Only**: No external dependencies
+- **ESP Task Compliant**: Valid for marking
+
+### Go Version
+- **AI Assisted**: Written with generative AI for learning purposes
+- **External Dependency**: Uses `go-sqlite3` driver
+- **Not for Marking**: Practice implementation only
+
+### Language-Specific Differences
+
+| Feature | Python | Go |
+|---------|--------|-----|
+| Error Handling | Exceptions (`try/except`) | Error returns (`if err != nil`) |
+| Type System | Dynamic with hints | Static with interfaces |
+| Inheritance | Class-based | Interface-based composition |
+| Package Privacy | Convention (`_private`) | Capitalization (exported/unexported) |
+
 ## License
 
-GNU General Public License v3  
-See [LICENSE](LICENSE) file for details.
+GNU General Public License v3 (GPL-3.0)<br>
+See the [LICENSE](LICENSE) file for details.
+
+## Additional Documentation
+
+For implementation-specific details, see:
+- [Python README](python/README.md) - Detailed Python documentation
+- [Go README](golang/README.md) - Detailed Go documentation
+
 
 ---
