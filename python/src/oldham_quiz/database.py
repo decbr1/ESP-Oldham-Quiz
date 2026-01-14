@@ -4,7 +4,10 @@ import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional
 
-from .colours import c
+try:
+    from .colours import c
+except:
+    from colours import c
 
 class HighScoreDatabase:
     """Manages high scores using SQLite database."""
