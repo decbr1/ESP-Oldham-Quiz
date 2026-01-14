@@ -36,7 +36,7 @@ def main():
     print(f"Your final score was {user_score}/{len(QUESTIONS)} ({user_score/len(QUESTIONS)*100:.1f}%)")
 
 if __name__ == "__main__":
-    with open('questions.json', 'r', encoding='utf-8') as f:
+    with open('../../questions.json', 'r', encoding='utf-8') as f:
         QUESTIONS = json.load(f)
     
     main()
