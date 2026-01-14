@@ -36,14 +36,18 @@ ESP-Oldham-Quiz/
 │   │   └── oldham_quiz/    # Main package
 │   │       ├── __init__.py         # Package initialization
 │   │       ├── colours.py          # ANSI colour codes
-│   │       ├── database.py         # High score database manager
+│   │       ├── database.py         # High score database manager (SQLite)
+│   │       ├── dataframe.py        # Pandas DataFrame functionality
+│   │       ├── display_strategies.py  # Display formatting functions
 │   │       ├── models.py           # Player and Question data models
 │   │       ├── input_handler.py    # Buzzer/keyboard input handling
 │   │       ├── game_modes.py       # Game mode implementations
+│   │       ├── logger.py           # Logging utilities
 │   │       └── utils.py            # Helper functions
 │   └── old/                # Archived backup files
 │       ├── old_main_bkp.py
 │       ├── single_player_bkp.py
+│       ├── dataframe_reference_usage.py
 │       └── test_highscores.py
 │
 └── golang/                 # Go Implementation
@@ -77,8 +81,11 @@ Both implementations follow the same architecture with language-specific adaptat
 | `colours.py` | `internal/colours/colours.go` | ANSI colour codes and terminal styling |
 | `models.py` | `internal/models/models.go` | Player and Question data structures |
 | `database.py` | `internal/database/database.go` | SQLite high score persistence |
+| `dataframe.py` | *(Python-specific)* | Pandas DataFrame wrapper for analysis |
+| `display_strategies.py` | *(Python-specific)* | Pluggable display formatting functions |
 | `input_handler.py` | `internal/input/input.go` | Cross-platform keyboard input |
 | `game_modes.py` | `internal/game/game.go` | Single/multiplayer game logic |
+| `logger.py` | *(Python-specific)* | Logging utilities |
 | `utils.py` | `internal/utils/utils.go` | Question loading, warranties, helpers |
 
 ## Download and Run
@@ -174,6 +181,9 @@ Both implementations use modular, object-oriented design:
 **Python:**
 - Object-oriented with classes and inheritance
 - `QuizGame` abstract base class → `SinglePlayerGame`, `MultiPlayerGame`
+- **Strategy Pattern**: Pluggable display functions (`simple_display`, `dataframe_display`)
+- **Composition Over Inheritance**: `HighScoreDataframe` wraps `HighScoreDatabase`
+- **Functional Approach**: Display strategies use functions instead of classes where appropriate
 - Type hints throughout for clarity
 - PEP 8 compliant formatting
 
@@ -186,9 +196,11 @@ Both implementations use modular, object-oriented design:
 ### Key Design Patterns
 
 1. **Template Method Pattern**: Base game logic with specialized implementations
-2. **Single Responsibility**: Each module has one clear purpose
-3. **Separation of Concerns**: UI, logic, data, and input handled separately
-4. **Cross-Platform Compatibility**: Platform detection and fallback modes
+2. **Strategy Pattern (Python)**: Pluggable display formatting functions without code duplication
+3. **Composition Over Inheritance (Python)**: DataFrames compose databases instead of extending
+4. **Single Responsibility**: Each module has one clear purpose
+5. **Separation of Concerns**: UI, logic, data, and input handled separately
+6. **Cross-Platform Compatibility**: Platform detection and fallback modes
 
 ### Colour Scheme
 
@@ -250,7 +262,8 @@ Questions are stored in `questions.json` at the repository root:
 
 ### Python Version
 - **No AI Used**: Original implementation written manually
-- **Standard Library Only**: No external dependencies
+- **Standard Library Only**: No external dependencies required (pandas optional for DataFrame features)
+- **Modular Design**: Strategy pattern with functional composition
 - **ESP Task Compliant**: Valid for marking
 
 ### Go Version
