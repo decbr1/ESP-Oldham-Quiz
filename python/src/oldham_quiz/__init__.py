@@ -7,6 +7,7 @@ multi-player modes with buzzer functionality for competitive play.
 
 from .colours import Colours, ColouredStr, c
 from .database import HighScoreDatabase
+from .dataframe import HighScoreDataframe
 from .models import Player, Question
 from .input_handler import BuzzerInput
 from .game_modes import QuizGame, SinglePlayerGame, MultiPlayerGame
@@ -18,6 +19,7 @@ __all__ = [
     'ColouredStr',
     'c',
     'HighScoreDatabase',
+    'HighScoreDataframe',
     'Player',
     'Question',
     'BuzzerInput',
