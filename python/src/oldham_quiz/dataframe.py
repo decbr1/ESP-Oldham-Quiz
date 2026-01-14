@@ -1,30 +1,39 @@
-"""Converting database to pandas dataframe"""
+"""Pandas Dataframe functionality"""
 
-import sqlite3
 import os
 import sys
+from typing import Optional
 
 from logger import *
 from database import HighScoreDatabase
- 
+
+
 try:
     import pandas as pd
 except:
     critical("pandas is not installed in this environment")
     sys.exit()
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
+class HighScoreDataframe(HighScoreDatabase):
+    """Manages high scores using Pandas dataframe"""
 
-project_root = project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-db_path = os.path.join(project_root, 'high_scores.db')
+    def __init__(self, db: HighScoreDatabase):
+        """
+        Initialize with an existing database instance.
 
-high_score_db = HighScoreDatabase(db_path)
+        Args:
+            db: HighScoreDatabase instance to pull data from
+        """
+        self.db = db
 
-data = high_score_db.get_top_scores(limit=10, game_mode=None)
-df = pd.DataFrame(data)
+    def get_dataframe(self, limit: int = 10, game_mode: Optional[str] = None) -> pd.DataFrame:
+        """Get high scores as a pandas DataFrame."""
+        data = self.db.get_top_scores(limit=limit, game_mode=game_mode)
+        return pd.DataFrame(data)
 
-print(data)
-print(df)
+    def display_stats(self):
+        """Display statistical analysis of high scores."""
+        df = self.get_dataframe(limit=None)
+        print(df.describe())
+
 
