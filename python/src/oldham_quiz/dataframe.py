@@ -25,6 +25,4 @@ high_score_db = HighScoreDatabase(db_path)
 data = high_score_db.get_top_scores(limit=10, game_mode=None)
 df = pd.DataFrame(data)
 
-print(data)
 print(df)
-
