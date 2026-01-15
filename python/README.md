@@ -84,15 +84,20 @@ After startup, you'll see the main menu with the following options:
 
 ```
 ESP-Oldham-Quiz/
-├── oldham_quiz/            # Main package
-│   ├── __init__.py         # Package initialization and exports
-│   ├── colours.py           # ANSI colour codes utility
-│   ├── database.py         # High score database manager (SQLite)
-│   ├── models.py           # Player and Question data models
-│   ├── input_handler.py    # Buzzer and keyboard input handling
-│   ├── game_modes.py       # QuizGame, SinglePlayerGame, MultiPlayerGame
-│   └── utils.py            # Helper functions (load_questions, warranties)
-├── main.py                 # Entry point - game loop and menu
+├── python/
+│   └── src/
+│       ├── main.py                 # Entry point - game loop and menu
+│       └── oldham_quiz/            # Main package
+│           ├── __init__.py         # Package initialization and exports
+│           ├── colours.py          # ANSI colour codes utility
+│           ├── database.py         # High score database manager (SQLite)
+│           ├── dataframe.py        # Pandas DataFrame functionality for high scores
+│           ├── display_strategies.py  # Display formatting functions
+│           ├── models.py           # Player and Question data models
+│           ├── input_handler.py    # Buzzer and keyboard input handling
+│           ├── game_modes.py       # QuizGame, SinglePlayerGame, MultiPlayerGame
+│           ├── logger.py           # Logging utilities
+│           └── utils.py            # Helper functions (load_questions, warranties)
 ├── questions.json          # Quiz questions database
 ├── high_scores.db          # SQLite database for high scores (auto-created)
 ├── README.md               # This file!
@@ -101,15 +106,30 @@ ESP-Oldham-Quiz/
 
 ## Code Architecture
 
-The project uses a **modular architecture** with object-oriented programming principles. Code is organized into separate modules for maintainability:
+The project uses a **modular architecture** with object-oriented programming principles and functional composition. Code is organized into separate modules for maintainability:
 
 ### Modules:
 
 **`oldham_quiz/colours.py`**
 - **`Colours`**: ANSI colour codes utility class for colourised terminal output
+- **`c()`**: Helper function to create coloured string instances with chainable methods
 
 **`oldham_quiz/database.py`**
 - **`HighScoreDatabase`**: SQLite database manager for persistent high score storage
+  - `add_score()`: Save a player's score to the database
+  - `get_top_scores()`: Retrieve top scores with optional filtering
+  - `display_leaderboard()`: Display leaderboard using configurable display function (defaults to `simple_display`)
+
+**`oldham_quiz/dataframe.py`**
+- **`HighScoreDataframe`**: Pandas DataFrame wrapper for high score analysis
+  - `get_dataframe()`: Returns scores as pandas DataFrame
+  - `display_stats()`: Shows statistical analysis of scores
+  - `display_leaderboard()`: Displays leaderboard using pandas formatting
+
+**`oldham_quiz/display_strategies.py`**
+- **`simple_display()`**: Basic text-based leaderboard formatting with ANSI colors
+- **`dataframe_display()`**: Pandas-based leaderboard formatting
+- **`LeaderboardDisplay`**: Type alias for display functions
 
 **`oldham_quiz/models.py`**
 - **`Player`**: Represents a quiz player with name, key, and score
@@ -122,6 +142,9 @@ The project uses a **modular architecture** with object-oriented programming pri
 - **`QuizGame`**: Abstract base class for game modes
   - **`SinglePlayerGame`**: Single-player implementation
   - **`MultiPlayerGame`**: Multiplayer implementation with buzzer logic
+
+**`oldham_quiz/logger.py`**
+- Logging utilities for debug, info, warning, error, and critical messages
 
 **`oldham_quiz/utils.py`**
 - **`load_questions()`**: Load questions from JSON file
@@ -136,9 +159,16 @@ The project uses a **modular architecture** with object-oriented programming pri
 ```
 oldham_quiz/
 ├── colours.py
-│   └── Colours (utility class)
+│   ├── Colours (utility class)
+│   └── c() (helper function)
 ├── database.py
 │   └── HighScoreDatabase (utility class)
+├── dataframe.py
+│   └── HighScoreDataframe (wrapper class)
+├── display_strategies.py
+│   ├── simple_display() (function)
+│   ├── dataframe_display() (function)
+│   └── LeaderboardDisplay (type alias)
 ├── models.py
 │   ├── Player (data class)
 │   └── Question (data class)
@@ -148,11 +178,28 @@ oldham_quiz/
 │   ├── QuizGame (ABC)
 │   ├── SinglePlayerGame (extends QuizGame)
 │   └── MultiPlayerGame (extends QuizGame)
+├── logger.py
+│   └── logging functions (debug, info, warning, error, critical)
 └── utils.py
     ├── load_questions()
     ├── show_warranty()
     └── show_conditions()
 ```
+
+### Design Patterns
+
+**Strategy Pattern (Functional)**
+- Display formatting is separated into pluggable functions
+- `simple_display()` for basic text output with colors
+- `dataframe_display()` for pandas-based table formatting
+- Both `HighScoreDatabase` and `HighScoreDataframe` can use any display function
+- Easy to extend with new formats (JSON, CSV, HTML) without modifying existing code
+
+**Composition Over Inheritance**
+- `HighScoreDataframe` wraps `HighScoreDatabase` instance
+- No inheritance hierarchy between database classes
+- Display logic separated from data management
+- Functions over classes where state isn't needed
 
 ### Class Hierarchy
 
@@ -160,6 +207,9 @@ oldham_quiz/
 QuizGame (ABC)
 ├── SinglePlayerGame
 └── MultiPlayerGame
+
+HighScoreDatabase (standalone)
+HighScoreDataframe (composes HighScoreDatabase)
 ```
 
 ## Game Flow
@@ -190,14 +240,18 @@ main()
 ## **Code Quality**
 - **Modular Architecture**: Code organised into separate, focused modules
 - **Single Responsibility Principle**: Each module has a clear, specific purpose
+- **Functional Composition**: Display strategies use functions instead of unnecessary classes
+- **Strategy Pattern**: Pluggable display formatting without code duplication
+- **Composition Over Inheritance**: Dataframe wraps database instead of extending it
 - Proper docstrings for all classes and methods (Google style)
-- Type hints throughout (`List[Question]`, `Optional[str]`, etc.)
+- Type hints throughout (`List[Question]`, `Optional[str]`, `Callable`, etc.)
 - Constants in UPPER_CASE (`MAX_ATTEMPTS`, `VALID_KEYS`, `BUZZER_KEYS`)
 - Consistent spacing and indentation (PEP 8 compliant)
 - Line lengths kept reasonable
 - Clear, descriptive variable names
 - ANSI colour codes encapsulated in dedicated `Colours` utility class
 - Easy to extend and maintain
+- Pythonic design - functions where classes aren't needed
 
 ## Platform Notes
 

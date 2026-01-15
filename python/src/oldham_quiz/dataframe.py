@@ -1,28 +1,70 @@
-"""Converting database to pandas dataframe"""
+"""Pandas Dataframe functionality"""
 
-import sqlite3
 import os
 import sys
+from typing import Optional
 
-from logger import *
-from database import HighScoreDatabase
- 
+from .display_strategies import dataframe_display
+
+try:
+    from .logger import *
+    from .colours import c
+    from .database import HighScoreDatabase
+except:
+    from logger import *
+    from colours import c
+    from database import HighScoreDatabase
+
+
+
+
 try:
     import pandas as pd
 except:
     critical("pandas is not installed in this environment")
     sys.exit()
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
+class HighScoreDataframe:
+    """Manages high scores using Pandas dataframe"""
 
-project_root = project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-db_path = os.path.join(project_root, 'high_scores.db')
+    def __init__(self, db: HighScoreDatabase):
+        """
+        Initialize with an existing database instance.
 
-high_score_db = HighScoreDatabase(db_path)
+        Args:
+            db: HighScoreDatabase instance to pull data from
+        """
+        self.db = db
 
-data = high_score_db.get_top_scores(limit=10, game_mode=None)
-df = pd.DataFrame(data)
+    def get_dataframe(self, limit: int = 10, game_mode: Optional[str] = None) -> pd.DataFrame:
+        """
+        Get high scores as a pandas DataFrame.
+
+        Args:
+            limit: Maximum number of scores to return
+            game_mode: Filter by game mode ('single', 'multiplayer', or None for all)
+
+        Returns:
+            Pandas Dataframe of requested scores
+        """
+
+        data = self.db.get_top_scores(limit=limit, game_mode=game_mode)
+        return pd.DataFrame(data)
+
+    def display_stats(self):
+        """stdPrints statistical analysis of high scores."""
+
+        df = self.get_dataframe(limit=None)
+        print(df.describe())
+
+    def display_leaderboard(self, limit: int = 10, game_mode: Optional[str] = None):
+        """Display leaderboard using pandas DataFrame formatting.
+
+        Args:
+            limit: Maximum number of scores to display
+            game_mode: Filter by 'single', 'multiplayer', or None for all
+        """
+        scores = self.db.get_top_scores(limit, game_mode)
+        dataframe_display(scores, game_mode)
 
 print(df)
