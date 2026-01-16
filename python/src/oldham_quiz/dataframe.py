@@ -33,20 +33,31 @@ class HighScoreDataframe:
         """
         self.db = db
 
-    def get_dataframe(self, limit: int = 10, game_mode: Optional[str] = None) -> pd.DataFrame:
+    def get_dataframe(self, limit: int = 10, game_mode: Optional[str] = None, sort_by: str = 'score') -> pd.DataFrame:
         """
         Get high scores as a pandas DataFrame.
 
         Args:
             limit: Maximum number of scores to return
             game_mode: Filter by game mode ('single', 'multiplayer', or None for all)
+            sort_by: Sort method - 'score' (by percentage/score, descending) or 'name' (alphabetically by player_name)
 
         Returns:
-            Pandas Dataframe of requested scores
+            Pandas Dataframe of requested scores, sorted as specified
         """
 
         data = self.db.get_top_scores(limit=limit, game_mode=game_mode)
-        return pd.DataFrame(data)
+        df = pd.DataFrame(data)
+
+        if df.empty:
+            return df
+
+        if sort_by == 'name':
+            df = df.sort_values(by='player_name', ascending=True)
+        else:
+            df = df.sort_values(by=['percentage', 'score'], ascending=[False, False])
+
+        return df.reset_index(drop=True)
 
     def display_stats(self):
         """stdPrints statistical analysis of high scores."""
