@@ -36,6 +36,10 @@ class BuzzerInput:
 
     def _wait_for_buzz_windows(self) -> str:
         """Wait for buzzer key on Windows."""
+        if not self.is_tty:
+            # Fallback for IDE/non-TTY environments
+            return self._wait_for_buzz_fallback()
+
         while True:
             if msvcrt.kbhit():
                 key = msvcrt.getch().decode('utf-8').upper()

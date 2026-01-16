@@ -45,4 +45,3 @@ class Question:
         print(f"\n{c(f'Question {self.index}:').cyan.bold} {c(self.text).white}")
         for option in self.options:
             print(f"  {c(option).yellow}")
-

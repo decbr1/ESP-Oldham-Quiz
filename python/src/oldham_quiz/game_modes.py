@@ -217,12 +217,10 @@ class MultiPlayerGame(QuizGame):
                        attempts: int) -> bool:
         """
         Check if a buzz is valid.
-
         Args:
             buzzer_key: The key that was pressed
             first_buzzer: The first player to buzz (if any)
             attempts: Number of attempts so far
-
         Returns:
             True if the buzz is valid, False otherwise
         """
