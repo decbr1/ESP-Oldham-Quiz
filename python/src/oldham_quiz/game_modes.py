@@ -167,7 +167,7 @@ class MultiPlayerGame(QuizGame):
             print("No worries! On buzz in, you will have to press "
                   "enter after your key.")
             print("To have the buzzer more realistic, run the game with "
-                  "`python3 old_main_bkp.py` in a terminal.")
+                  "`python3 main.py` in a terminal.")
             input("Press enter to confirm you have read the above...")
 
     def play_question(self, question: Question, question_num: int) -> bool:
