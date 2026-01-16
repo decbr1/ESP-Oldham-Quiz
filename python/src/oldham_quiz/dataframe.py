@@ -4,19 +4,16 @@ import os
 import sys
 from typing import Optional
 
-from .display_strategies import dataframe_display
-
 try:
     from .logger import *
     from .colours import c
+    from .display_strategies import dataframe_display
     from .database import HighScoreDatabase
 except:
     from logger import *
     from colours import c
+    from display_strategies import dataframe_display
     from database import HighScoreDatabase
-
-
-
 
 try:
     import pandas as pd
@@ -58,7 +55,8 @@ class HighScoreDataframe:
         print(df.describe())
 
     def display_leaderboard(self, limit: int = 10, game_mode: Optional[str] = None):
-        """Display leaderboard using pandas DataFrame formatting.
+        """
+        Display leaderboard using pandas DataFrame formatting.
 
         Args:
             limit: Maximum number of scores to display
@@ -66,5 +64,3 @@ class HighScoreDataframe:
         """
         scores = self.db.get_top_scores(limit, game_mode)
         dataframe_display(scores, game_mode)
-
-print(df)
