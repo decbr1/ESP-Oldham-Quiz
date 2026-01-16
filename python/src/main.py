@@ -99,14 +99,30 @@ def main():
 
                 match view_choice:
                     case '1':
-                        high_score_df.display_leaderboard()
+                        game_mode=None
+                    case '2':
+                        game_mode='single'
+                    case '3':
+                        game_mode='multiplayer'
+                    case _:
+                        continue
+
+                print()
+                print(c("1. Sort by score (default)").cyan)
+                print(c("2. Sort by alphabetical player name").cyan)
+                print(c("3. Back to Main Menu").red)
+
+                sort_choice = input("\nSelect option (1-3): ").strip()
+
+                match sort_choice:
+                    case '1':
+                        high_score_df.display_leaderboard(game_mode=game_mode, sort_by='score')
                         input("Press Enter to continue...")
                     case '2':
-                        high_score_df.display_leaderboard(game_mode='single')
+                        high_score_df.display_leaderboard(game_mode=game_mode, sort_by='name')
                         input("Press Enter to continue...")
-                    case '3':
-                        high_score_df.display_leaderboard(game_mode='multiplayer')
-                        input("Press Enter to continue...")
+                    case _:
+                        continue
                 continue
 
             case '4':

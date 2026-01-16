@@ -40,7 +40,7 @@ class HighScoreDataframe:
         Args:
             limit: Maximum number of scores to return
             game_mode: Filter by game mode ('single', 'multiplayer', or None for all)
-            sort_by: Sort method - 'score' (by percentage/score, descending) or 'name' (alphabetically by player_name)
+            sort_by: Sort method ('score', 'name')
 
         Returns:
             Pandas Dataframe of requested scores, sorted as specified
@@ -65,13 +65,16 @@ class HighScoreDataframe:
         df = self.get_dataframe(limit=None)
         print(df.describe())
 
-    def display_leaderboard(self, limit: int = 10, game_mode: Optional[str] = None):
+    def display_leaderboard(self, limit: int = 10, game_mode: Optional[str] = None, sort_by: str = 'score') -> None:
         """
         Display leaderboard using pandas DataFrame formatting.
 
         Args:
             limit: Maximum number of scores to display
             game_mode: Filter by 'single', 'multiplayer', or None for all
+            sort_by: Sort method ('score', 'name') 
         """
-        scores = self.db.get_top_scores(limit, game_mode)
-        dataframe_display(scores, game_mode)
+        df = self.get_dataframe(game_mode=game_mode, sort_by=sort_by)
+        print()
+        print(df.to_string(index=False))
+        print()
