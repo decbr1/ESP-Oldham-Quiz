@@ -8,15 +8,21 @@ This project (and readme!) was written without use of any Generative AI.
 - **Single Player Mode**: Answer questions at the pleasure of nobody but yourself.
 - **Multiplayer Mode (2-3 players)**: Answer questions stressfully with friends and family.
 - **High Score Database**: High Scores saved to a database, just the like arcades.
+- **Pandas DataFrame Integration**: View and sort high scores with pandas DataFrames.
+- **Matplotlib Charts**: Visualise your scores with bar and pie charts.
 - **Colourized Output**: ANSI colours for the benefit of your eyes. And brain.
 - **20 Questions**: Modular questions.json file, add your own if you so choose!
 - **Real-time Buzzer System**: Buzz in quick without needing to hit enter!
 - **Cross-Platform Support**: Buzzer input works on macOS, Linux, and Windows.
+- **PyInstaller Support**: Build standalone executables for distribution.
 
 ## Requirements
 
 - Python 3.7 or higher
-- No external dependencies required (uses standard library only)
+- External dependencies:
+  - `pandas` - DataFrame functionality for high score analysis
+  - `matplotlib` - Chart visualisations (bar and pie charts)
+- Standard library modules used:
   - `sqlite3` for database
   - `json` for question loading
   - Platform-specific modules for keyboard input (`msvcrt`, `termios`, `tty`)
@@ -28,6 +34,10 @@ This project (and readme!) was written without use of any Generative AI.
    ```bash
    python3 --version
    ```
+3. Install dependencies:
+   ```bash
+   pip install pandas matplotlib
+   ```
 
 ## Usage
 
@@ -36,6 +46,7 @@ This project (and readme!) was written without use of any Generative AI.
 For the best experience with real-time buzzer input, run from a terminal:
 
 ```bash
+cd python/src
 python3 main.py
 ```
 
@@ -46,13 +57,17 @@ You can also run it from an IDE (PyCharm, VS Code, etc.), but buzzer input will 
 - Type **`w`** to see warranty details
 - Type **`c`** to see redistribution conditions
 
-### Game Modes
+### Main Menu
 
 After startup, you'll see the main menu with the following options:
 
 1. **Start New Game** - Begin a quiz session
-2. **View High Scores** - Browse the leaderboard (All, Single Player, or Multiplayer)
-3. **Exit** - Quit the game
+2. **View High Scores w/ SQLite Database** - Browse the leaderboard using raw SQL
+3. **View High Scores w/ Pandas DataFrame** - Browse the leaderboard using pandas (sortable)
+4. **View a matplotlib chart** - Display bar or pie chart of scores
+5. **Exit** - Quit the game
+
+### Game Modes
 
 #### Single Player
 1. Select `1` when prompted for number of players
@@ -92,12 +107,13 @@ ESP-Oldham-Quiz/
 │           ├── colours.py          # ANSI colour codes utility
 │           ├── database.py         # High score database manager (SQLite)
 │           ├── dataframe.py        # Pandas DataFrame functionality for high scores
+│           ├── charts.py           # Matplotlib bar and pie chart visualisations
 │           ├── display_strategies.py  # Display formatting functions
 │           ├── models.py           # Player and Question data models
 │           ├── input_handler.py    # Buzzer and keyboard input handling
 │           ├── game_modes.py       # QuizGame, SinglePlayerGame, MultiPlayerGame
 │           ├── logger.py           # Logging utilities
-│           └── utils.py            # Helper functions (load_questions, warranties)
+│           └── utils.py            # Helper functions (load_questions, warranties, PyInstaller)
 ├── questions.json          # Quiz questions database
 ├── high_scores.db          # SQLite database for high scores (auto-created)
 ├── README.md               # This file!
@@ -124,7 +140,11 @@ The project uses a **modular architecture** with object-oriented programming pri
 - **`HighScoreDataframe`**: Pandas DataFrame wrapper for high score analysis
   - `get_dataframe()`: Returns scores as pandas DataFrame
   - `display_stats()`: Shows statistical analysis of scores
-  - `display_leaderboard()`: Displays leaderboard using pandas formatting
+  - `display_leaderboard()`: Displays leaderboard using pandas formatting with sorting options
+
+**`oldham_quiz/charts.py`**
+- **`plot_bar()`**: Display a bar chart for score metrics using matplotlib
+- **`plot_pie()`**: Display a pie chart for score distribution using matplotlib
 
 **`oldham_quiz/display_strategies.py`**
 - **`simple_display()`**: Basic text-based leaderboard formatting with ANSI colors
@@ -147,6 +167,7 @@ The project uses a **modular architecture** with object-oriented programming pri
 - Logging utilities for debug, info, warning, error, and critical messages
 
 **`oldham_quiz/utils.py`**
+- **`get_resource_path()`**: Get absolute path to resources (supports PyInstaller bundling)
 - **`load_questions()`**: Load questions from JSON file
 - **`show_warranty()`**: Display GPL warranty information
 - **`show_conditions()`**: Display GPL redistribution conditions
@@ -165,6 +186,9 @@ oldham_quiz/
 │   └── HighScoreDatabase (utility class)
 ├── dataframe.py
 │   └── HighScoreDataframe (wrapper class)
+├── charts.py
+│   ├── plot_bar() (function)
+│   └── plot_pie() (function)
 ├── display_strategies.py
 │   ├── simple_display() (function)
 │   ├── dataframe_display() (function)
@@ -181,6 +205,7 @@ oldham_quiz/
 ├── logger.py
 │   └── logging functions (debug, info, warning, error, critical)
 └── utils.py
+    ├── get_resource_path()
     ├── load_questions()
     ├── show_warranty()
     └── show_conditions()
@@ -208,8 +233,8 @@ QuizGame (ABC)
 ├── SinglePlayerGame
 └── MultiPlayerGame
 
-HighScoreDatabase (standalone)
-HighScoreDataframe (composes HighScoreDatabase)
+ HighScoreDatabase (standalone)
+ HighScoreDataframe (composes HighScoreDatabase)
 ```
 
 ## Game Flow
@@ -218,6 +243,7 @@ HighScoreDataframe (composes HighScoreDatabase)
 main()
   -> Load questions into Question objects
   -> Initialise HighScoreDatabase
+  -> Initialise HighScoreDataframe
   -> Display copyright notice
   -> Main Menu Loop:
       -> Option 1: Start New Game
@@ -231,11 +257,32 @@ main()
               -> game.display_final_results()
                   -> Save all player scores to database
           -> Prompt to view high scores
-      -> Option 2: View High Scores
+      -> Option 2: View High Scores (SQLite)
           -> Choose filter (All/Single/Multiplayer)
           -> Display leaderboard from database
-      -> Option 3: Exit
+      -> Option 3: View High Scores (DataFrame)
+          -> Choose filter (All/Single/Multiplayer)
+          -> Choose sort order (Score/Name)
+          -> Display leaderboard using pandas
+      -> Option 4: View Matplotlib Chart
+          -> Choose chart type (Bar/Pie)
+          -> Display chart with matplotlib
+      -> Option 5: Exit
 ```
+
+## Chart Visualisations
+
+The game includes matplotlib-based visualisations for score data:
+
+### Bar Chart
+- Displays player scores as vertical bars
+- Shows player names on x-axis, scores on y-axis
+- Colour-coded bars for easy comparison
+
+### Pie Chart
+- Displays score distribution as pie segments
+- Shows percentage and actual values for each player
+- Handles edge case of zero total scores gracefully
 
 ## **Code Quality**
 - **Modular Architecture**: Code organised into separate, focused modules
@@ -269,16 +316,28 @@ main()
 - Requires pressing Enter after each key press
 - Still fully functional, just slightly less responsive
 
+## Building with PyInstaller
+
+The project includes support for building standalone executables:
+
+```bash
+pip install pyinstaller
+cd python/src
+pyinstaller --onefile --add-data "../../questions.json:." main.py
+```
+
+The `get_resource_path()` function in `utils.py` handles finding resources whether running from source or from a PyInstaller bundle.
+
 ## Colour Scheme
 
 The game features colourised output for enhanced visual experience:
 
-- **🟢 Green**: Correct answers, winner announcements
-- **🔴 Red**: Incorrect answers, error messages, invalid input
-- **🟡 Yellow**: Question options (A, B, C), buzzer keys
-- **🔵 Cyan**: Question text, player names, rankings
-- **🟣 Magenta**: Major section headers (BUZZ IN, FINAL RESULTS)
-- **🔷 Blue**: Subsection headers (BUZZER KEYS, CURRENT SCORES)
+- **Green**: Correct answers, winner announcements, start game option
+- **Red**: Incorrect answers, error messages, invalid input, exit option
+- **Yellow**: Question options (A, B, C), buzzer keys, high score options
+- **Cyan**: Question text, player names, rankings, main menu title
+- **Magenta**: Major section headers (BUZZ IN, FINAL RESULTS), chart option
+- **Blue**: Subsection headers (BUZZER KEYS, CURRENT SCORES)
 - **Bold**: Emphasis on scores, titles, and important information
 
 Colours work on all modern terminals using ANSI escape codes (no external dependencies required).
@@ -291,12 +350,14 @@ The game automatically tracks all player scores in a SQLite database (`high_scor
 - **Automatic Saving**: All scores are saved automatically after each game
 - **Persistent Storage**: Scores are stored permanently in SQLite database
 - **Multiple Leaderboards**: View combined scores or filter by game mode
+- **Two Display Modes**: SQLite-based or Pandas DataFrame-based views
+- **Sortable (DataFrame)**: Sort by score or alphabetically by player name
 - **Top 10 Rankings**: See the best performances with percentage scores
 - **Timestamp Tracking**: Each score includes the date it was achieved
 - **Mode Indicators**: [S] for Single Player, [M] for Multiplayer
 
 ### Viewing High Scores:
-From the main menu, select option `2` to view:
+From the main menu, select option `2` (SQLite) or `3` (DataFrame) to view:
 1. **All Scores** - Combined leaderboard of all game modes
 2. **Single Player Only** - Top single player performances
 3. **Multiplayer Only** - Top multiplayer winners
@@ -323,14 +384,16 @@ This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.
 This is free software, and you are welcome to redistribute it
 under certain conditions; type 'c' for details.
 
-Press Enter to continue, or type 'w' or 'c': 
+Press Enter to continue, or type 'w' or 'c':
 
 MAIN MENU
 1. Start New Game
-2. View High Scores
-3. Exit
+2. View High Scores w/ SQLite Database
+3. View High Scores w/ Pandas Dataframe
+4. View a matplotlib chart
+5. Exit
 
-Select option (1-3): 1
+Select option (1-5): 1
 
 How many players? (1-3): 2
 
@@ -405,7 +468,7 @@ Questions in `questions.json` follow this structure:
 
 ## License
 
-GNU General Public License v3  
+GNU General Public License v3
 See [LICENSE](../LICENSE) file for details.
 
 ---

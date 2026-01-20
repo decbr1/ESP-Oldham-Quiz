@@ -14,10 +14,13 @@ This repository contains a multi-language quiz application with:
 - **Single Player Mode**: Answer questions solo and try to beat your high score
 - **Multiplayer Mode**: Competitive gameplay with real-time buzzer system
 - **High Score Database**: Persistent SQLite database tracks all scores across both implementations
+- **Pandas DataFrame Integration**: View and sort high scores using pandas DataFrames
+- **Matplotlib Charts**: Visualise scores with bar and pie charts (Python only)
 - **Colourised Output**: ANSI colour-coded terminal UI for enhanced readability
 - **Modular Questions**: JSON-based question format
 - **Real-time Buzzer System**: Quick-response gameplay without needing to hit Enter
 - **Cross-Platform Support**: Everything, even buzzer input, works on Linux, macOS, and Windows
+- **PyInstaller Support**: Build standalone executables (Python only)
 - **GPL Licensed**: Free and open-source software
 
 ## Repository Structure
@@ -38,12 +41,13 @@ ESP-Oldham-Quiz/
 │   │       ├── colours.py          # ANSI colour codes
 │   │       ├── database.py         # High score database manager (SQLite)
 │   │       ├── dataframe.py        # Pandas DataFrame functionality
+│   │       ├── charts.py           # Matplotlib bar and pie charts
 │   │       ├── display_strategies.py  # Display formatting functions
 │   │       ├── models.py           # Player and Question data models
 │   │       ├── input_handler.py    # Buzzer/keyboard input handling
 │   │       ├── game_modes.py       # Game mode implementations
 │   │       ├── logger.py           # Logging utilities
-│   │       └── utils.py            # Helper functions
+│   │       └── utils.py            # Helper functions (inc. PyInstaller support)
 │   └── old/                # Archived backup files
 │       ├── old_main_bkp.py
 │       ├── single_player_bkp.py
@@ -82,6 +86,7 @@ Both implementations follow the same architecture with language-specific adaptat
 | `models.py` | `internal/models/models.go` | Player and Question data structures |
 | `database.py` | `internal/database/database.go` | SQLite high score persistence |
 | `dataframe.py` | *(Python-specific)* | Pandas DataFrame wrapper for analysis |
+| `charts.py` | *(Python-specific)* | Matplotlib visualisations (bar/pie charts) |
 | `display_strategies.py` | *(Python-specific)* | Pluggable display formatting functions |
 | `input_handler.py` | `internal/input/input.go` | Cross-platform keyboard input |
 | `game_modes.py` | `internal/game/game.go` | Single/multiplayer game logic |
@@ -94,7 +99,14 @@ Both implementations follow the same architecture with language-specific adaptat
 
 **Requirements:**
 - Python 3.7 or higher
-- No external dependencies (uses standard library only)
+- External dependencies:
+  - `pandas` - DataFrame functionality and high score analysis
+  - `matplotlib` - Chart visualisations
+
+**Install dependencies:**
+```bash
+pip install pandas matplotlib
+```
 
 **Running:**
 ```bash
@@ -110,7 +122,7 @@ python3 main.py
 
 **Building and Running:**
 ```bash
-cd golng
+cd golang
 go mod download          # Install dependencies
 go build -o oldham-quiz ./cmd/main.go
 ./oldham-quiz
@@ -131,10 +143,12 @@ go run cmd/main.go
    - Type **`w`** for warranty details
    - Type **`c`** for redistribution conditions
 
-2. **Main Menu**:
+2. **Main Menu** (Python):
    - `1` - Start New Game
-   - `2` - View High Scores
-   - `3` - Exit
+   - `2` - View High Scores (SQLite Database)
+   - `3` - View High Scores (Pandas DataFrame)
+   - `4` - View a Matplotlib Chart
+   - `5` - Exit
 
 ### Single Player Mode
 
@@ -172,6 +186,11 @@ Both implementations share the same SQLite database (`high_scores.db`):
 - **Top 10 Rankings**: Sorted by percentage, then score, then date
 - **Mode Indicators**: `[S]` for Single Player, `[M]` for Multiplayer
 
+### Python-Specific Features
+
+- **Pandas DataFrame View**: Sort by score or alphabetically by name
+- **Matplotlib Charts**: Visualise scores with bar or pie charts
+
 ## Architecture & Design
 
 ### Code Architecture
@@ -206,12 +225,12 @@ Both implementations use modular, object-oriented design:
 
 Both implementations use consistent ANSI colour coding:
 
-- **🟢 Green**: Correct answers, winners
-- **🔴 Red**: Incorrect answers, errors
-- **🟡 Yellow**: Question options (A/B/C), buzzer keys
-- **🔷 Cyan**: Questions, player names, rankings
-- **🟣 Magenta**: Major section headers
-- **🔵 Blue**: Subsection headers
+- **Green**: Correct answers, winners
+- **Red**: Incorrect answers, errors
+- **Yellow**: Question options (A/B/C), buzzer keys
+- **Cyan**: Questions, player names, rankings
+- **Magenta**: Major section headers
+- **Blue**: Subsection headers
 - **Bold**: Emphasis on scores and titles
 
 ## Question Format
@@ -262,7 +281,8 @@ Questions are stored in `questions.json` at the repository root:
 
 ### Python Version
 - **No AI Used**: Original implementation written manually
-- **Standard Library Only**: No external dependencies required (pandas optional for DataFrame features)
+- **External Dependencies**: Requires `pandas` and `matplotlib`
+- **PyInstaller Support**: Can be built as standalone executable using `get_resource_path()` helper
 - **Modular Design**: Strategy pattern with functional composition
 - **ESP Task Compliant**: Valid for marking
 
@@ -279,6 +299,8 @@ Questions are stored in `questions.json` at the repository root:
 | Type System | Dynamic with hints | Static with interfaces |
 | Inheritance | Class-based | Interface-based composition |
 | Package Privacy | Convention (`_private`) | Capitalization (exported/unexported) |
+| Charts | Matplotlib (bar/pie) | Not implemented |
+| DataFrames | Pandas integration | Not implemented |
 
 ## License
 
