@@ -1,10 +1,20 @@
 """Utility functions for loading questions and displaying information."""
-
+import sys
+import os
 import json
 from typing import List
 
 from .models import Question
 
+def get_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # pyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 def load_questions(filepath: str) -> List[Question]:
     """
@@ -16,7 +26,9 @@ def load_questions(filepath: str) -> List[Question]:
     Returns:
         List of Question objects
     """
-    with open(filepath, 'r', encoding='utf-8') as f:
+
+    json_path = get_resource_path('questions.json')
+    with open(json_path, 'r') as f:
         data = json.load(f)
     return [Question(q) for q in data]
 
