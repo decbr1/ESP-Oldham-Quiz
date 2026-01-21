@@ -4,12 +4,12 @@ import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional
 
-from .display_strategies import simple_display, LeaderboardDisplay
-
 try:
     from .colours import c
+    from .display_strategies import simple_display, LeaderboardDisplay
 except:
     from colours import c
+    from display_strategies import simple_display, LeaderboardDisplay
 
 class HighScoreDatabase:
     """Manages high scores using SQLite database."""
@@ -122,4 +122,3 @@ class HighScoreDatabase:
         scores = self.get_top_scores(limit, game_mode)
         display = display_fn or simple_display
         display(scores, game_mode)
-
