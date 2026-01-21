@@ -43,7 +43,7 @@ def main():
     questions = load_questions(questions_path)
     high_score_db = HighScoreDatabase(db_path)
     high_score_df = HighScoreDataframe(high_score_db)
-                        
+
     print(c("\n=== OLDHAM QUIZ ===").bold.cyan)
     print(c("Copyright (C) 2026 DecBr1").white)
     print("This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.")
@@ -154,8 +154,6 @@ def main():
                     logger.critical("failed to view chart")
                     logger.error(e)
                     
-            
-
             case '5':
                 # exit Game
                 print(c("\nThanks for playing!\n").cyan)
