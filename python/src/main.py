@@ -12,6 +12,8 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 from oldham_quiz import (
+    plot_bar,
+    plot_pie,
     HighScoreDatabase,
     HighScoreDataframe,
     SinglePlayerGame,
@@ -59,10 +61,11 @@ def main():
         print(c("MAIN MENU").bold.cyan)
         print(c("1. Start New Game").green)
         print(c("2. View High Scores w/ SQLite Database").yellow)
-        print(c("3. View High Scores w/ Pandas Dataframe").magenta)
-        print(c("4. Exit").red)
+        print(c("3. View High Scores w/ Pandas Dataframe").yellow)
+        print(c("4. View a matplotlib chart").magenta)
+        print(c("5. Exit").red)
 
-        choice = input("\nSelect option (1-4): ").strip()
+        choice = input("\nSelect option (1-5): ").strip()
 
         match choice:
             case '2':
@@ -125,7 +128,29 @@ def main():
                         continue
                 continue
 
+
             case '4':
+                # matplotlib
+                print()
+                print(c("1. Bar chart").cyan)
+                print(c("2. Pie chart").cyan)
+                print(c("3. Back to Main Menu").red)
+
+                chart_choice = input("\nSelect option (1-3): ").strip()
+                
+                match chart_choice:
+                    case '1':
+                        plot_bar(high_score_df.get_dataframe(), 'score', "Bar Chart of Scores by Player")
+                        input("Press Enter to continue...")
+                    case '2':
+                        plot_pie(high_score_df.get_dataframe(), 'score', "Pie Chart of Scores by Player")
+                        input("Press Enter to continue...")
+                    case _:
+                        continue
+                continue
+            
+
+            case '5':
                 # exit Game
                 print(c("\nThanks for playing!\n").cyan)
                 break

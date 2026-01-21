@@ -12,6 +12,7 @@ from .models import Player, Question
 from .input_handler import BuzzerInput
 from .game_modes import QuizGame, SinglePlayerGame, MultiPlayerGame
 from .utils import load_questions, show_warranty, show_conditions
+from .charts import plot_bar, plot_pie
 
 __version__ = '1.0.0'
 __all__ = [
@@ -29,4 +30,6 @@ __all__ = [
     'load_questions',
     'show_warranty',
     'show_conditions',
+    'plot_bar',
+    'plot_pie',
 ]
