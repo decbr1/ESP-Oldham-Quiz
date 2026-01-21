@@ -21,8 +21,8 @@ if crashLater:
 
 def plot_bar(df: pd.DataFrame, metric_col: str, title: str):
     """Display a bar chart for the chosen metric"""
-    names = df["player_name"]
-    values = df[metric_col]
+    names   = df["player_name"]
+    values  = df[metric_col]
 
     plt.figure(figsize=(8,5))
     bars = plt.bar(names, values, color=["#4C78A8", "#F58518", "#54A24B"])
@@ -39,9 +39,9 @@ def plot_bar(df: pd.DataFrame, metric_col: str, title: str):
 
 def plot_pie(df: pd.DataFrame, metric_col: str, title: str):
     """Display a pie chart for the chosen metric"""
-    names = df["player_name"]
-    values = df[metric_col].astype(float)
-    total = float(values.sum())
+    names   = df["player_name"]
+    values  = df[metric_col].astype(float)
+    total   = float(values.sum())
     
     if total == 0.0:
         print("\nCannot display a pie chart because the total value is 0.")
@@ -58,4 +58,3 @@ def plot_pie(df: pd.DataFrame, metric_col: str, title: str):
     plt.title(title)
     plt.tight_layout()
     plt.show()
-    

@@ -22,6 +22,7 @@ from oldham_quiz import (
     show_warranty,
     show_conditions,
     c,
+    logger,
 )
 
 
@@ -42,7 +43,7 @@ def main():
     questions = load_questions(questions_path)
     high_score_db = HighScoreDatabase(db_path)
     high_score_df = HighScoreDataframe(high_score_db)
-
+                        
     print(c("\n=== OLDHAM QUIZ ===").bold.cyan)
     print(c("Copyright (C) 2026 DecBr1").white)
     print("This program comes with ABSOLUTELY NO WARRANTY; for details type 'w'.")
@@ -138,16 +139,21 @@ def main():
 
                 chart_choice = input("\nSelect option (1-3): ").strip()
                 
-                match chart_choice:
-                    case '1':
-                        plot_bar(high_score_df.get_dataframe(), 'score', "Bar Chart of Scores by Player")
-                        input("Press Enter to continue...")
-                    case '2':
-                        plot_pie(high_score_df.get_dataframe(), 'score', "Pie Chart of Scores by Player")
-                        input("Press Enter to continue...")
-                    case _:
-                        continue
-                continue
+                try:
+                    match chart_choice:
+                        case '1':
+                            plot_bar(high_score_df.get_dataframe(), 'score', "Bar Chart of Scores by Player")
+                            input("Press Enter to continue...")
+                        case '2':
+                            plot_pie(high_score_df.get_dataframe(), 'score', "Pie Chart of Scores by Player")
+                            input("Press Enter to continue...")
+                        case _:
+                            continue
+                    continue
+                except Exception as e:
+                    logger.critical("failed to view chart")
+                    logger.error(e)
+                    
             
 
             case '5':
