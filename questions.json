@@ -43,9 +43,9 @@
         "question_index": 5,
         "question": "What is the highest league position Oldham Athletic has ever achieved in English football?",
         "options": [
-            "<A> Championship (Second tier)",
+            "<A> Championship",
             "<B> Premier League",
-            "<C> First Division runners-up (Second place in top tier)"
+            "<C> First Division runners-up"
         ],
         "answer": "C"
     },
@@ -73,11 +73,11 @@
         "question_index": 8,
         "question": "What league did Oldham Athletic drop into in 2022?",
         "options": [
-            "<A> League Two",
-            "<B> Conference National (Non-League)",
-            "<C> League One"
+            "<A> Sky Bet League One",
+            "<B> Sky Bet League Two",
+            "<C> Vanarama National League"
         ],
-        "answer": "B"
+        "answer": "C"
     },
     {
         "question_index": 9,
